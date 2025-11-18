@@ -13,7 +13,7 @@
 
 <Header />
 
-<div class="container mx-auto flex items-center pt-24 flex-1 flex-col">
+<div class="container mx-auto flex items-center flex-1 flex-col">
 	{@render children()}
 </div>
 
