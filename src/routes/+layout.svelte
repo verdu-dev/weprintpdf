@@ -12,5 +12,9 @@
 </svelte:head>
 
 <Header />
-{@render children()}
+
+<div class="container mx-auto flex items-center pt-24 flex-1 flex-col">
+	{@render children()}
+</div>
+
 <Footer />
