@@ -10,12 +10,12 @@
 		const diffTime = Math.abs(now.getTime() - createdDate.getTime());
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 		return diffDays <= 30;
-	})();F
+	})();
 </script>
 
 <a href={`/${category}/${slug}`}>
 	<article
-		class="relative transition-colors flex flex-col gap-2 rounded-3xl border border-neutral-300 p-4 hover:bg-neutral-900 hover:text-white"
+		class="relative flex flex-col gap-2 rounded-3xl border border-neutral-300 p-4 transition-colors squircle hover:bg-neutral-900 hover:text-white"
 	>
 		{#if isNew}
 			<div class="absolute top-3 right-3 rounded-full bg-red-500 p-1.5">
@@ -31,9 +31,3 @@
 		<p>{description}</p>
 	</article>
 </a>
-
-<style>
-	article {
-		corner-shape: squircle;
-	}
-</style>

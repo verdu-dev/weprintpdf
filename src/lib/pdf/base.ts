@@ -1,10 +1,14 @@
 import { jsPDF } from "jspdf";
+import { bloburi, calendarOptions } from "@/lib/stores";
+import { get } from "svelte/store";
 
 export function createPDF() {
+  const options = get(calendarOptions);
+
   const doc = new jsPDF({
-    orientation: "portrait",
     unit: "mm",
-    format: "a4",
+    format: options.size,
+    orientation: options.orientation,
     putOnlyUsedFonts: true,
   });
 
@@ -12,8 +16,8 @@ export function createPDF() {
     title: "Weprintpdf",
   });
 
-  doc.text("Hello world!", 10, 10);
+  doc.text(options.year, 10, 10);
   const pdfOutput = doc.output("bloburi")
 
-  return pdfOutput.toString();
+  bloburi.set(pdfOutput.toString());
 }

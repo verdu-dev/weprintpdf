@@ -3,3 +3,11 @@
 @theme {
 	--font-brand: 'Momo Signature', sans-serif;
 }
+
+@utility squircle {
+	corner-shape: squircle;
+}
+
+:root {
+	scrollbar-width: thin;
+}
