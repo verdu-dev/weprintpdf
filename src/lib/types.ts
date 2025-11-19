@@ -14,3 +14,25 @@ export interface CalendarOptions {
   size: DocSize
   orientation: DocOrientation
 }
+
+export interface CalendarDay {
+  date: Date;
+  day: number;
+  weekday: number;
+  month: number;
+  iso: string;
+  isToday?: boolean;
+  holiday?: boolean;
+  holidayName?: string;
+};
+
+export interface CalendarMonth {
+  month: number;
+  name: string;
+  weeks: (CalendarDay | null)[][];
+};
+
+export interface CalendarYear {
+  year: number;
+  months: CalendarMonth[];
+};

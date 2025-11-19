@@ -1,3 +1,59 @@
-export function isLeapYear(year: string | number) {
+import type { CalendarDay, CalendarMonth, CalendarYear } from "@/lib/types";
+import { MONTH_NAMES } from "@/lib/enums";
+
+export function isLeap(year: string | number) {
   return (+year % 4 === 0) && (+year % 100 !== 0 || +year % 400 === 0);
+}
+
+export function weekdayES(date: Date) {
+  return (date.getDay() + 6) % 7
+};
+
+export function generateCalendar(year: number): CalendarYear {
+  const totalDays = isLeap(year) ? 366 : 365;
+
+  const days: CalendarDay[] = Array.from({ length: totalDays }, (_, i) => {
+    const date = new Date(year, 0, i + 1);
+    return {
+      date,
+      day: date.getDate(),
+      weekday: weekdayES(date),
+      month: date.getMonth(),
+      iso: date.toISOString().slice(0, 10),
+    };
+  });
+
+  const months: CalendarMonth[] = Array.from({ length: 12 }, (_, m) => {
+    const monthDays = days.filter((d) => d.month === m);
+    const weeks: (CalendarDay | null)[][] = [];
+    let currentWeek: (CalendarDay | null)[] = [];
+
+    if (monthDays.length === 0) {
+      weeks.push(Array.from({ length: 7 }, () => null));
+      return { month: m, name: Object.values(MONTH_NAMES)[m], weeks };
+    }
+
+    const firstWeekday = monthDays[0].weekday;
+    if (firstWeekday > 0) {
+      currentWeek = Array.from({ length: firstWeekday }, () => null);
+    }
+
+    for (const d of monthDays) {
+      currentWeek.push(d);
+
+      if (currentWeek.length === 7) {
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+
+    if (currentWeek.length > 0) {
+      while (currentWeek.length < 7) currentWeek.push(null);
+      weeks.push(currentWeek);
+    }
+
+    return { month: m, name: Object.values(MONTH_NAMES)[m], weeks };
+  });
+
+  return { year, months };
 }

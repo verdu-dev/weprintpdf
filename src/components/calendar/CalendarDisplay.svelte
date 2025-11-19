@@ -1,5 +1,6 @@
 <script>
 	import { bloburi } from '@/lib/stores';
+	import { generateCalendar } from '@/lib/utils';
 
 	function fadeLoad() {
 		isLoading = true;
@@ -12,6 +13,8 @@
 	let isLoading = false;
 	$: src = $bloburi + '#view=fith';
 	$: if ($bloburi) fadeLoad();
+
+	$: console.log(generateCalendar(2025));
 </script>
 
 <article
