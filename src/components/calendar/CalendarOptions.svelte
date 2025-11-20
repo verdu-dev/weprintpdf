@@ -5,14 +5,17 @@
 	import { onMount } from 'svelte';
 
 	onMount(createPDF);
+	$: console.log($calendarOptions);
 </script>
 
 <aside class="flex flex-col gap-4 rounded-2xl bg-neutral-800 p-4 text-neutral-300 squircle">
 	<label class="flex flex-col gap-1">
-		<p>Año</p>
+		<p>Año {$calendarOptions.year}</p>
 		<input
 			class="w-full rounded-lg border border-neutral-600 p-2 outline-none"
-			type="text"
+			type="range"
+			min="1900"
+			max="2099"
 			bind:value={$calendarOptions.year}
 		/>
 	</label>
@@ -41,6 +44,24 @@
 				<option class="bg-neutral-900" {value}>{value}</option>
 			{/each}
 		</select>
+	</label>
+
+	<label class="flex flex-col gap-1">
+		<p>Marcar domingos</p>
+
+		<select
+			class="w-full rounded-lg border border-neutral-600 p-2 outline-none"
+			bind:value={$calendarOptions.sundays}
+		>
+			<option class="bg-neutral-900" value={true}>Si</option>
+			<option class="bg-neutral-900" value={false}>No</option>
+		</select>
+	</label>
+
+	<label class="flex flex-col gap-1">
+		<p>Color fondo</p>
+
+		<input class="w-full" type="color" bind:value={$calendarOptions.bgColor} />
 	</label>
 
 	<button

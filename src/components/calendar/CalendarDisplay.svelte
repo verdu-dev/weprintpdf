@@ -11,10 +11,8 @@
 	}
 
 	let isLoading = false;
-	$: src = $bloburi + '#view=fith';
+	$: src = $bloburi + '#view=fit&toolbar=0';
 	$: if ($bloburi) fadeLoad();
-
-	$: console.log(generateCalendar(2025));
 </script>
 
 <article

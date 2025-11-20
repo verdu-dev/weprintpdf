@@ -12,7 +12,9 @@ export interface Tool {
 export interface CalendarOptions {
   year: string,
   size: DocSize
-  orientation: DocOrientation
+  orientation: DocOrientation,
+  sundays: boolean,
+  bgColor: string
 }
 
 export interface CalendarDay {

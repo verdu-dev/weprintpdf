@@ -5,7 +5,7 @@ import { generateCalendar, splitArray } from "@/lib/utils";
 import { DocOrientation, WEEKDAYS_NAMES } from "@/lib/enums";
 
 export function createPDF() {
-  const { year, size, orientation } = get(calendarOptions);
+  const { year, size, orientation, sundays, bgColor } = get(calendarOptions);
   const calendar = generateCalendar(+year);
 
   const doc = new jsPDF({
@@ -41,6 +41,9 @@ export function createPDF() {
 
   const splittedMonths = splitArray(calendar.months, monthCols);
 
+  doc.setFillColor(bgColor);
+  doc.rect(0, 0, pageWidth, pageHeight, "F");
+
   splittedMonths.forEach((chunk, chunkInd) => {
     chunk.forEach((month, monthInd) => {
       const monthX = margin + (monthInd * monthWidth) + (monthInd < 1 ? 0 : gap * monthInd);
@@ -51,8 +54,10 @@ export function createPDF() {
       /* doc.setDrawColor("black");
       doc.rect(monthX, monthY, monthWidth, monthHeight); */
 
-      doc.setFontSize(10);
-      doc.setTextColor("black").setFont("helvetica", "normal");
+      doc.setFontSize(12)
+        .setTextColor("black")
+        .setFont("helvetica", "normal");
+
       doc.text(month.name, monthCenterX, monthCenterY, {
         baseline: "middle",
         align: "center"
@@ -67,8 +72,10 @@ export function createPDF() {
         /* doc.setDrawColor("green");
         doc.rect(weekdayX, weekdayY, dayWidth, dayHeight); */
 
-        doc.setFontSize(8);
-        doc.setTextColor("black").setFont("helvetica", "normal");
+        doc.setFontSize(6)
+          .setTextColor("gray")
+          .setFont("helvetica", "normal");
+
         doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayCenterY, {
           baseline: "middle",
           align: "center"
@@ -94,8 +101,16 @@ export function createPDF() {
             doc.rect(dayX, dayY, dayWidth, dayHeight); */
 
             const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
-            if (isSunday) doc.setTextColor("red").setFont("helvetica", "bold");
-            else doc.setTextColor("black").setFont("helvetica", "normal");
+
+            if (sundays && isSunday) {
+              doc.setFontSize(8)
+                .setTextColor("red")
+                .setFont("helvetica", "bold");
+            } else {
+              doc.setFontSize(8)
+                .setTextColor("black")
+                .setFont("helvetica", "normal");
+            }
 
             doc.text(`${day.day}`, dayCenterX, dayCenterY, {
               baseline: "middle",
