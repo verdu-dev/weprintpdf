@@ -10,5 +10,6 @@ export const calendarOptions: Writable<CalendarOptions> = writable({
   size: DocSize.A4,
   orientation: DocOrientation.PORTRAIT,
   sundays: true,
-  bgColor: "#ffffff"
+  bgColor: "#ffffff",
+  dayBox: false
 })

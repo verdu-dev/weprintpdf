@@ -14,7 +14,8 @@ export interface CalendarOptions {
   size: DocSize
   orientation: DocOrientation,
   sundays: boolean,
-  bgColor: string
+  bgColor: string,
+  dayBox: boolean
 }
 
 export interface CalendarDay {

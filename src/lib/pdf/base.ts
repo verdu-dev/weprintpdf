@@ -5,7 +5,7 @@ import { generateCalendar, splitArray } from "@/lib/utils";
 import { DocOrientation, WEEKDAYS_NAMES } from "@/lib/enums";
 
 export function createPDF() {
-  const { year, size, orientation, sundays, bgColor } = get(calendarOptions);
+  const { year, size, orientation, sundays, bgColor, dayBox } = get(calendarOptions);
   const calendar = generateCalendar(+year);
 
   const doc = new jsPDF({
@@ -13,6 +13,7 @@ export function createPDF() {
     format: size,
     orientation: orientation,
     putOnlyUsedFonts: true,
+    precision: 5
   });
 
   doc.setProperties({
@@ -97,8 +98,12 @@ export function createPDF() {
 
 
           if (day && day.day) {
-            /* doc.setDrawColor("blue");
-            doc.rect(dayX, dayY, dayWidth, dayHeight); */
+
+            if (dayBox) {
+              doc.setDrawColor("black");
+              doc.setLineWidth(0.01);
+              doc.rect(dayX, dayY, dayWidth, dayHeight, "D");
+            }
 
             const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
 

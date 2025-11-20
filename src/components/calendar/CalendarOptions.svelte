@@ -59,6 +59,18 @@
 	</label>
 
 	<label class="flex flex-col gap-1">
+		<p>Recuadro dias</p>
+
+		<select
+			class="w-full rounded-lg border border-neutral-600 p-2 outline-none"
+			bind:value={$calendarOptions.dayBox}
+		>
+			<option class="bg-neutral-900" value={true}>Si</option>
+			<option class="bg-neutral-900" value={false}>No</option>
+		</select>
+	</label>
+
+	<label class="flex flex-col gap-1">
 		<p>Color fondo</p>
 
 		<input class="w-full" type="color" bind:value={$calendarOptions.bgColor} />
