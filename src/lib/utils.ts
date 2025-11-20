@@ -57,3 +57,9 @@ export function generateCalendar(year: number): CalendarYear {
 
   return { year, months };
 }
+
+export function splitArray<T>(arr: Array<T>, chunkSize: number) {
+  return Array.from({ length: Math.ceil(arr.length / chunkSize) }, (_, i) =>
+    arr.slice(i * chunkSize, i * chunkSize + chunkSize)
+  );
+}

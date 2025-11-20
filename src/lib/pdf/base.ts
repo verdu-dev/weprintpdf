@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
-import { bloburi, calendarOptions } from "@/lib/stores";
 import { get } from "svelte/store";
-import { generateCalendar } from "@/lib/utils";
+import { bloburi, calendarOptions } from "@/lib/stores";
+import { generateCalendar, splitArray } from "@/lib/utils";
 import { DocOrientation, WEEKDAYS_NAMES } from "@/lib/enums";
 
 export function createPDF() {
@@ -21,66 +21,91 @@ export function createPDF() {
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const outerMargin = 10;
-  const innerMargin = 5;
+  const margin = 7;
+  const gap = 7;
 
   const monthCols = orientation === DocOrientation.PORTRAIT ? 3 : 4;
   const monthRows = orientation === DocOrientation.PORTRAIT ? 4 : 3;
-  const monthWidth = (pageWidth - (outerMargin * 2)) / monthCols;
-  const monthHeight = (pageHeight - (outerMargin * 2)) / monthRows;
+  const gapsOnX = monthCols - 1;
+  const gapsOnY = monthRows - 1;
+  const gapX = (gap * gapsOnX) / monthCols;
+  const gapY = (gap * gapsOnY) / monthRows;
+
+  const monthWidth = ((pageWidth - (margin * 2)) / monthCols) - gapX;
+  const monthHeight = ((pageHeight - (margin * 2)) / monthRows) - gapY;
 
   const dayCols = 7;
   const dayRows = 8;
   const dayWidth = monthWidth / dayCols;
   const dayHeight = monthHeight / dayRows;
 
-  calendar.months.forEach((month, monthInd) => {
-    if (monthInd < monthCols) {
-      for (let monthRow = 0; monthRow < monthRows; monthRow++) {
-        const monthX = outerMargin + (monthInd * monthWidth);
-        const monthY = outerMargin + (monthRow * monthHeight);
+  const splittedMonths = splitArray(calendar.months, monthCols);
 
-        doc.setDrawColor("black");
-        doc.rect(monthX, monthY, monthWidth, monthHeight);
-        doc.setFontSize(10);
-        doc.text(month.name, monthX + innerMargin, monthY + innerMargin, {
-          baseline: "top"
-        });
+  splittedMonths.forEach((chunk, chunkInd) => {
+    chunk.forEach((month, monthInd) => {
+      const monthX = margin + (monthInd * monthWidth) + (monthInd < 1 ? 0 : gap * monthInd);
+      const monthY = margin + (chunkInd * monthHeight) + (chunkInd < 1 ? 0 : gap * chunkInd);
+      const monthCenterX = monthX + monthWidth / 2;
+      const monthCenterY = monthY + dayHeight / 2;
 
-        Object.values(WEEKDAYS_NAMES).forEach((weekday, weekdayInd) => {
-          const weekdayX = monthX + dayWidth * weekdayInd;
-          const weekdayY = monthY + dayHeight;
+      /* doc.setDrawColor("black");
+      doc.rect(monthX, monthY, monthWidth, monthHeight); */
 
-          doc.setDrawColor("green");
-          doc.rect(weekdayX, weekdayY, dayWidth, dayHeight);
-          doc.text(weekday.slice(0, 2), weekdayX, weekdayY + innerMargin, {
-            baseline: "top"
-          })
-        });
+      doc.setFontSize(10);
+      doc.setTextColor("black").setFont("helvetica", "normal");
+      doc.text(month.name, monthCenterX, monthCenterY, {
+        baseline: "middle",
+        align: "center"
+      });
 
-        month.weeks.forEach((week, weekInd) => {
-          const weekX = monthX;
-          const weekY = monthY + ((weekInd + 2) * dayHeight);
+      Object.values(WEEKDAYS_NAMES).forEach((weekday, weekdayInd) => {
+        const weekdayX = monthX + dayWidth * weekdayInd;
+        const weekdayY = monthY + dayHeight;
+        const weekdayCenterX = weekdayX + dayWidth / 2;
+        const weekdayCenterY = weekdayY + dayHeight / 2;
 
-          doc.setDrawColor("red");
-          doc.rect(weekX, weekY, monthWidth, dayHeight);
+        /* doc.setDrawColor("green");
+        doc.rect(weekdayX, weekdayY, dayWidth, dayHeight); */
 
-          week.forEach((day, dayInd) => {
-            const dayX = weekX + dayWidth * dayInd;
-            const dayY = weekY;
-
-            if (day?.day) {
-              doc.setDrawColor("blue");
-              doc.rect(dayX, dayY, dayWidth, dayHeight);
-              doc.text(`${day.day}`, dayX, dayY + innerMargin, {
-                baseline: "top"
-              })
-            } else doc.setDrawColor("white");
-          })
+        doc.setFontSize(8);
+        doc.setTextColor("black").setFont("helvetica", "normal");
+        doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayCenterY, {
+          baseline: "middle",
+          align: "center"
         })
-      }
-    }
-  });
+      });
+
+      month.weeks.forEach((week, weekInd) => {
+        const weekX = monthX;
+        const weekY = monthY + ((weekInd + 2) * dayHeight);
+
+        /* doc.setDrawColor("red");
+        doc.rect(weekX, weekY, monthWidth, dayHeight); */
+
+        week.forEach((day, dayInd) => {
+          const dayX = weekX + dayWidth * dayInd;
+          const dayY = weekY;
+          const dayCenterX = dayX + dayWidth / 2;
+          const dayCenterY = dayY + dayHeight / 2;
+
+
+          if (day && day.day) {
+            /* doc.setDrawColor("blue");
+            doc.rect(dayX, dayY, dayWidth, dayHeight); */
+
+            const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
+            if (isSunday) doc.setTextColor("red").setFont("helvetica", "bold");
+            else doc.setTextColor("black").setFont("helvetica", "normal");
+
+            doc.text(`${day.day}`, dayCenterX, dayCenterY, {
+              baseline: "middle",
+              align: "center"
+            })
+          }
+        })
+      })
+    })
+  })
 
   const pdfOutput = doc.output("bloburi")
   bloburi.set(pdfOutput.toString());
