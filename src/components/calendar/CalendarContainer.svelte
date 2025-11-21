@@ -4,7 +4,7 @@
 </script>
 
 <section id="crear" class="h-svh w-full p-6 squircle">
-	<div class="grid size-full grid-cols-[30%_1fr] gap-3 rounded-4xl">
+	<div class="grid size-full grid-cols-[350px_1fr] gap-3 rounded-4xl">
 		<CalendarOptions />
 		<CalendarDisplay />
 	</div>

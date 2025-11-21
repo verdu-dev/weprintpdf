@@ -18,6 +18,9 @@ export interface CalendarOptions {
   dayBox: boolean,
   textSize: "s" | "m" | "l"
   image: string | null;
+  multipage: boolean,
+  holydays: boolean,
+  saints: boolean
 }
 
 export interface CalendarDay {

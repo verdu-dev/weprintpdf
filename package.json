@@ -36,6 +36,7 @@
 		"vite": "^7.1.10"
 	},
 	"dependencies": {
+		"@fontsource-variable/work-sans": "^5.2.8",
 		"@fontsource/momo-signature": "^5.2.1",
 		"jspdf": "^3.0.3"
 	}

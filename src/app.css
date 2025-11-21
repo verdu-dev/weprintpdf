@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
+	--font-sans: 'Work Sans Variable', sans-serif;
 	--font-brand: 'Momo Signature', sans-serif;
 	--scrollbar-track: theme('colors.neutral.700');
 	--scrollbar-thumb: theme('colors.neutral.500');

@@ -2,7 +2,7 @@
 	import type { Tool } from '@/lib/types';
 
 	export let tool: Tool;
-	const { createdAt, icon, name, description, category, slug } = tool;
+	const { createdAt, icon, name, description, slug } = tool;
 
 	const isNew = (() => {
 		const createdDate = new Date(createdAt);
@@ -13,7 +13,7 @@
 	})();
 </script>
 
-<a href={`/${category}/${slug}`}>
+<a href={`/${slug}`}>
 	<article
 		class="relative flex flex-col gap-2 rounded-3xl border border-neutral-300 p-4 transition-colors squircle hover:bg-neutral-900 hover:text-white"
 	>

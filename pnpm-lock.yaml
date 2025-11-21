@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/work-sans':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource/momo-signature':
         specifier: ^5.2.1
         version: 5.2.1
@@ -284,6 +287,9 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource-variable/work-sans@5.2.8':
+    resolution: {integrity: sha512-8uWtTt0/B5NxGie9xUVD5y5Ch4Q+Hy7kFYKtUpwYbzSAgJEoaMxT8rMnfnK7zfAYSLC8GnGO1/tXrFtKIYYQVQ==}
 
   '@fontsource/momo-signature@5.2.1':
     resolution: {integrity: sha512-K5z1SBZYDnsX8J2FnnZfaKQnJ6bvZrHHgrIBo9IiksSSeUT+UpaHpbJh84HxRYJy+RSmqI93HO93thSbMNDwfA==}
@@ -1632,6 +1638,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.17.0
       levn: 0.4.1
+
+  '@fontsource-variable/work-sans@5.2.8': {}
 
   '@fontsource/momo-signature@5.2.1': {}
 

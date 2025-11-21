@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '@fontsource/momo-signature';
+	import '@fontsource-variable/work-sans';
 	import '@/app.css';
 	
 	import Footer from '@/components/Footer.svelte';

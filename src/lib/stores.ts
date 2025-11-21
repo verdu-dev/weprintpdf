@@ -13,5 +13,8 @@ export const calendarOptions: Writable<CalendarOptions> = writable({
   sundays: true,
   dayBox: false,
   textSize: "m",
-  image: null
+  image: null,
+  multipage: false,
+  holydays: false,
+  saints: false
 })
