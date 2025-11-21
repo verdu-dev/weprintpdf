@@ -2,16 +2,16 @@ import { jsPDF } from "jspdf";
 import { get } from "svelte/store";
 import { bloburi, calendarOptions } from "@/lib/stores";
 import { generateCalendar, splitArray } from "@/lib/utils";
-import { DocOrientation, WEEKDAYS_NAMES } from "@/lib/enums";
+import { WEEKDAYS_NAMES } from "@/lib/enums";
 
 export function createPDF() {
-  const { year, size, orientation, sundays, bgColor, dayBox } = get(calendarOptions);
-  const calendar = generateCalendar(+year);
+  const options = get(calendarOptions);
+  const calendar = generateCalendar(+options.year);
 
   const doc = new jsPDF({
     unit: "mm",
-    format: size,
-    orientation: orientation,
+    format: options.size,
+    orientation: options.orientation,
     putOnlyUsedFonts: true,
     precision: 5
   });
@@ -23,17 +23,55 @@ export function createPDF() {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 7;
-  const gap = 7;
+  const gap = 5;
 
-  const monthCols = orientation === DocOrientation.PORTRAIT ? 3 : 4;
-  const monthRows = orientation === DocOrientation.PORTRAIT ? 4 : 3;
+  const imageBox = {
+    x: margin,
+    y: margin,
+    width: pageWidth - (margin * 2),
+    height: pageHeight - (margin * 2)
+  }
+
+  if (options.image) {
+    doc.addImage(options.image, "JPEG", imageBox.x, imageBox.y, imageBox.width, imageBox.height);
+  }
+
+  const titleBox = {
+    x: 0,
+    y: 0,
+    width: pageWidth,
+    height: 30
+  }
+
+  /* doc.rect(titleBox.x, titleBox.y, titleBox.width, titleBox.height); */
+
+  doc.setFontSize(28)
+    .setTextColor("black")
+    .setFont("helvetica", "bold");
+
+  doc.text(`${options.year}`, pageWidth / 2, titleBox.y + titleBox.height / 2, {
+    baseline: "middle",
+    align: "center"
+  });
+
+  const calendarBox = {
+    x: margin,
+    y: titleBox.height,
+    width: pageWidth - (margin * 2),
+    height: pageHeight - margin - titleBox.height
+  }
+
+  /* doc.rect(calendarBox.x, calendarBox.y, calendarBox.width, calendarBox.height); */
+
+  const monthCols = +options.grid.split(",")[0];
+  const monthRows = +options.grid.split(",")[1];
   const gapsOnX = monthCols - 1;
   const gapsOnY = monthRows - 1;
   const gapX = (gap * gapsOnX) / monthCols;
   const gapY = (gap * gapsOnY) / monthRows;
 
-  const monthWidth = ((pageWidth - (margin * 2)) / monthCols) - gapX;
-  const monthHeight = ((pageHeight - (margin * 2)) / monthRows) - gapY;
+  const monthWidth = (calendarBox.width / monthCols) - gapX;
+  const monthHeight = (calendarBox.height / monthRows) - gapY;
 
   const dayCols = 7;
   const dayRows = 8;
@@ -42,13 +80,10 @@ export function createPDF() {
 
   const splittedMonths = splitArray(calendar.months, monthCols);
 
-  doc.setFillColor(bgColor);
-  doc.rect(0, 0, pageWidth, pageHeight, "F");
-
   splittedMonths.forEach((chunk, chunkInd) => {
     chunk.forEach((month, monthInd) => {
-      const monthX = margin + (monthInd * monthWidth) + (monthInd < 1 ? 0 : gap * monthInd);
-      const monthY = margin + (chunkInd * monthHeight) + (chunkInd < 1 ? 0 : gap * chunkInd);
+      const monthX = calendarBox.x + (monthInd * monthWidth) + (monthInd < 1 ? 0 : gap * monthInd);
+      const monthY = calendarBox.y + (chunkInd * monthHeight) + (chunkInd < 1 ? 0 : gap * chunkInd);
       const monthCenterX = monthX + monthWidth / 2;
       const monthCenterY = monthY + dayHeight / 2;
 
@@ -99,20 +134,20 @@ export function createPDF() {
 
           if (day && day.day) {
 
-            if (dayBox) {
-              doc.setDrawColor("black");
-              doc.setLineWidth(0.01);
+            if (options.dayBox) {
+              doc.setDrawColor("#eee");
               doc.rect(dayX, dayY, dayWidth, dayHeight, "D");
             }
 
             const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
+            const fontSize = options.textSize === "s" ? 8 : options.textSize === "m" ? 12 : 16;
 
-            if (sundays && isSunday) {
-              doc.setFontSize(8)
+            if (options.sundays && isSunday) {
+              doc.setFontSize(fontSize)
                 .setTextColor("red")
                 .setFont("helvetica", "bold");
             } else {
-              doc.setFontSize(8)
+              doc.setFontSize(fontSize)
                 .setTextColor("black")
                 .setFont("helvetica", "normal");
             }

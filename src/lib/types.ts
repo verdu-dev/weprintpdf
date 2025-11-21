@@ -13,9 +13,11 @@ export interface CalendarOptions {
   year: string,
   size: DocSize
   orientation: DocOrientation,
+  grid: "3,4" | "4,3" | "2,6" | "6,2",
   sundays: boolean,
-  bgColor: string,
-  dayBox: boolean
+  dayBox: boolean,
+  textSize: "s" | "m" | "l"
+  image: string | null;
 }
 
 export interface CalendarDay {
