@@ -15,7 +15,7 @@
 </script>
 
 <article
-	class="relative flex items-center justify-center overflow-clip rounded-3xl border border-neutral-800 bg-neutral-800 text-neutral-600 squircle"
+	class="relative flex items-center justify-center overflow-clip rounded-3xl border-8 border-neutral-800 bg-neutral-800 text-neutral-600 squircle"
 >
 	<p>Cargando pdf</p>
 

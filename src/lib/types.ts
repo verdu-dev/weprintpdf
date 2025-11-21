@@ -20,7 +20,12 @@ export interface CalendarOptions {
   image: string | null;
   multipage: boolean,
   holydays: boolean,
-  saints: boolean
+  saints: boolean,
+  logo: {
+    img: HTMLImageElement,
+    format: string,
+    aspectRatio: number
+  } | null;
 }
 
 export interface CalendarDay {

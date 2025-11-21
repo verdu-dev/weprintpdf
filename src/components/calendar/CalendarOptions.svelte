@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { DocOrientation, DocSize } from '@/lib/enums';
 	import { createAnual, createAnualMultipage } from '@/lib/pdf/calendar';
@@ -7,6 +7,33 @@
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
 	$: printCalendar = $calendarOptions.multipage ? createAnualMultipage : createAnual;
+	let logo: FileList | null = null;
+
+	$: if (logo && logo.length > 0) {
+		const file = logo[0];
+		const reader = new FileReader();
+		const fileType = file.type;
+		const [_, format] = fileType.split('/');
+
+		reader.onload = (e) => {
+			const dataUrl = e.target?.result as string;
+			const img = new Image();
+
+			img.onload = () => {
+				const aspectRatio = img.height / img.width;
+
+				$calendarOptions.logo = {
+					img,
+					format,
+					aspectRatio
+				};
+			};
+
+			img.src = dataUrl;
+		};
+
+		reader.readAsDataURL(file);
+	}
 
 	onMount(printCalendar);
 	$: ($calendarOptions, printCalendar());
@@ -17,6 +44,11 @@
 		link.href = blobUrl;
 		link.download = `calendario-${$calendarOptions.year}.pdf`;
 		link.click();
+	}
+
+	function removeLogo() {
+		$calendarOptions.logo = null;
+		logo = null;
 	}
 </script>
 
@@ -164,6 +196,23 @@
 				</label>
 			{/if}
 		</div>
+
+		<label class="flex flex-1 flex-col gap-1">
+			<p class="text-sm font-medium text-neutral-400">Logotipo</p>
+
+			<input
+				class="w-full appearance-none rounded-lg bg-neutral-800 px-3 py-2 text-lg outline-none"
+				type="file"
+				accept="image/png, image/jpeg, image/webp"
+				bind:files={logo}
+			/>
+		</label>
+
+		{#if $calendarOptions.logo}
+			<button class="rounded-lg bg-white px-3 py-2 text-black" type="button" on:click={removeLogo}>
+				Borrar
+			</button>
+		{/if}
 
 		<button
 			class="mt-4 cursor-pointer rounded-lg bg-neutral-50 px-4 py-2 text-neutral-900"

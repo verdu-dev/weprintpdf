@@ -52,11 +52,31 @@ export function createAnual() {
     align: "center"
   });
 
+  const footerBox = {
+    x: margin,
+    y: pageHeight - margin - 20,
+    width: pageWidth - (margin * 2),
+    height: options.logo ? 20 : 0
+  }
+
+  /* doc.rect(footerBox.x, footerBox.y, footerBox.width, footerBox.height); */
+
+  if (options.logo) {
+    doc.addImage(
+      options.logo.img,
+      options.logo.format,
+      footerBox.x + footerBox.width / 2 - ((footerBox.height / options.logo.aspectRatio) / 2),
+      footerBox.y,
+      footerBox.height / options.logo.aspectRatio,
+      footerBox.height
+    );
+  }
+
   const calendarBox = {
     x: margin,
     y: titleBox.height,
     width: pageWidth - (margin * 2),
-    height: pageHeight - margin - titleBox.height
+    height: pageHeight - margin - titleBox.height - footerBox.height
   }
 
   /* doc.rect(calendarBox.x, calendarBox.y, calendarBox.width, calendarBox.height); */
@@ -193,7 +213,7 @@ export function createAnualMultipage() {
       x: margin,
       y: margin,
       width: pageWidth - (margin * 2),
-      height: 30
+      height: 10
     }
 
     /* doc.rect(titleBox.x, titleBox.y, titleBox.width, titleBox.height); */
@@ -207,17 +227,37 @@ export function createAnualMultipage() {
       align: "center"
     })
 
+    const footerBox = {
+      x: margin,
+      y: pageHeight - margin - 20,
+      width: pageWidth - (margin * 2),
+      height: options.logo ? 20 : 0
+    }
+
+    /* doc.rect(footerBox.x, footerBox.y, footerBox.width, footerBox.height); */
+
+    if (options.logo) {
+      doc.addImage(
+        options.logo.img,
+        options.logo.format,
+        footerBox.x + footerBox.width / 2 - ((footerBox.height / options.logo.aspectRatio) / 2),
+        footerBox.y,
+        footerBox.height / options.logo.aspectRatio,
+        footerBox.height
+      );
+    }
+
     const monthBox = {
       x: margin,
       y: titleBox.height + margin,
       width: pageWidth - (margin * 2),
-      height: pageHeight - titleBox.height - (margin * 2)
+      height: pageHeight - titleBox.height - footerBox.height - (margin * 2)
     }
 
     /* doc.rect(monthBox.x, monthBox.y, monthBox.width, monthBox.height); */
 
     const dayCols = 7;
-    const dayRows = 6;
+    const dayRows = 7;
     const dayWidth = monthBox.width / dayCols;
     const dayHeight = monthBox.height / dayRows;
 
@@ -247,14 +287,14 @@ export function createAnualMultipage() {
       week.forEach((day, dayInd) => {
         const dayX = weekX + dayWidth * dayInd;
         const dayY = weekY;
-        const dayCenterX = dayX + dayWidth / 2;
-        const dayCenterY = dayY + dayHeight / 2;
+        const dayCenterX = dayX + (options.dayBox ? margin : dayWidth / 2);
+        const dayCenterY = dayY + (options.dayBox ? margin : dayHeight / 2);
 
 
         if (day && day.day) {
 
           if (options.dayBox) {
-            doc.setDrawColor("#eee");
+            doc.setDrawColor("#999");
             doc.rect(dayX, dayY, dayWidth, dayHeight, "D");
           }
 
