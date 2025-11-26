@@ -6,6 +6,7 @@
 	import Trust from '@/sections/Trust.svelte';
 </script>
 
+<!-- <p>Hola Pablo</p> -->
 <Hero />
 <Tools />
 <SeoText />
