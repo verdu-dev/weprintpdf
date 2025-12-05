@@ -3,8 +3,8 @@
 	import CalendarDisplay from '@/components/calendar/CalendarDisplay.svelte';
 </script>
 
-<section id="crear" class="h-svh w-full p-6 squircle">
-	<div class="grid size-full grid-cols-[350px_1fr] gap-3 rounded-4xl">
+<section id="crear" class="h-svh w-full p-2 squircle">
+	<div class="grid size-full grid-cols-[350px_1fr] gap-2">
 		<CalendarOptions />
 		<CalendarDisplay />
 	</div>

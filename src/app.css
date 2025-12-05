@@ -1,10 +1,24 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
 	--font-sans: 'Work Sans Variable', sans-serif;
 	--font-brand: 'Momo Signature', sans-serif;
 	--scrollbar-track: theme('colors.neutral.700');
 	--scrollbar-thumb: theme('colors.neutral.500');
+
+	--color-brown-50: #faf4f2;
+	--color-brown-100: #f5ebe5;
+	--color-brown-200: #e7cec1;
+	--color-brown-300: #d7ad9a;
+	--color-brown-400: #c68671;
+	--color-brown-500: #ba6a55;
+	--color-brown-600: #ac584a;
+	--color-brown-700: #8f463f;
+	--color-brown-800: #743b38;
+	--color-brown-900: #5f322f;
+	--color-brown-950: #321818;
 }
 
 @utility squircle {
@@ -22,4 +36,46 @@
 
 @utility thumb-* {
 	--scrollbar-thumb: --value(--color-*);
+}
+
+@utility bg-diagonals {
+	background-image: repeating-linear-gradient(
+		315deg,
+		var(--color-neutral-300) 0,
+		var(--color-neutral-300) 1px,
+		transparent 0,
+		transparent 50%
+	);
+	background-size: 10px 10px;
+
+	@variant dark {
+		background-image: repeating-linear-gradient(
+			315deg,
+			var(--color-neutral-700) 0,
+			var(--color-neutral-700) 1px,
+			transparent 0,
+			transparent 50%
+		);
+	}
+}
+
+@utility bg-circles {
+	background-image: radial-gradient(
+		circle at center,
+		transparent 7px,
+		var(--color-neutral-300) 8px,
+		transparent 9px
+	);
+	background-size: 100% 30px;
+	background-repeat: repeat-y;
+	background-position: center;
+
+	@variant dark {
+		background-image: radial-gradient(
+			circle at center,
+			transparent 7px,
+			var(--color-neutral-700) 8px,
+			transparent 9px
+		);
+	}
 }

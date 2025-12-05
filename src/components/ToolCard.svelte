@@ -15,19 +15,19 @@
 
 <a href={`/${slug}`}>
 	<article
-		class="relative flex flex-col gap-2 rounded-3xl border border-neutral-300 p-4 transition-colors squircle hover:bg-neutral-900 hover:text-white"
+		class="relative flex h-full flex-col gap-2 bg-brown-50 p-4 transition-colors squircle hover:bg-brown-200 dark:bg-neutral-900 dark:hover:bg-brown-900"
 	>
 		{#if isNew}
-			<div class="absolute top-3 right-3 rounded-full bg-red-500 p-1.5">
+			<div class="absolute top-3 right-3 rounded-full bg-brown-200 p-1.5 dark:bg-brown-900">
 				<span class="sr-only">NUEVO</span>
 			</div>
 		{/if}
 
 		<figure>
-			<span class="font-brand text-5xl text-neutral-600">{icon}</span>
+			<span class="font-brand text-5xl">{icon}</span>
 		</figure>
 
-		<h2 class="text-lg font-semibold">{name}</h2>
+		<h2 class="text-xl font-medium">{name}</h2>
 		<p>{description}</p>
 	</article>
 </a>
