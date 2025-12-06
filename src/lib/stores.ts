@@ -8,14 +8,13 @@ export const bloburi: Writable<string> = writable("");
 export const calendarOptions: Writable<CalendarOptions> = writable({
   year: CURRENT_YEAR,
   size: DocSize.A4,
-  orientation: DocOrientation.LANDSCAPE,
-  grid: "4,3",
+  orientation: DocOrientation.PORTRAIT,
   sundays: true,
-  dayBox: false,
-  textSize: "m",
+  monthBox: false,
+  dayBox: true,
   image: null,
-  multipage: false,
-  holydays: false,
-  saints: false,
+  multipage: true,
+  holidays: false,
+  labelHolidays: false,
   logo: null
-})
+});

@@ -1,49 +1,32 @@
-<script lang="ts">
-	import { onMount } from 'svelte';
+<script>
 	import { bloburi } from '@/lib/stores';
 
-	let canvas: HTMLCanvasElement;
-	let isLoading = false;
-	let mounted = false;
-
-	async function renderPdf() {
-		if (!$bloburi) return;
-
+	function fadeLoad() {
 		isLoading = true;
 
-		window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-			'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-		const pdf = await window.pdfjsLib.getDocument($bloburi).promise;
-		const page = await pdf.getPage(1);
-
-		const viewport = page.getViewport({ scale: 1.2 });
-		const ctx = canvas.getContext('2d');
-
-		canvas.width = viewport.width;
-		canvas.height = viewport.height;
-
-		await page.render({ canvasContext: ctx, viewport }).promise;
-
-		setTimeout(() => (isLoading = false), 300);
+		setTimeout(() => {
+			isLoading = false;
+		}, 800);
 	}
 
-	onMount(() => {
-		mounted = true;
-		if ($bloburi) renderPdf();
-	});
+	let isLoading = false;
 
-	$: if (mounted && $bloburi) renderPdf();
+	$: src = $bloburi + '#view=fit&toolbar=0';
+	$: if ($bloburi) fadeLoad();
 </script>
 
-<article class="relative border border-neutral-300 bg-brown-50">
-	<p>Cargando PDF...</p>
+<article
+	class="relative flex items-center justify-center overflow-clip rounded-3xl border-8 border-pdf bg-pdf text-neutral-600 squircle"
+>
+	<p>Cargando pdf</p>
 
 	{#if $bloburi}
-		<canvas
-			bind:this={canvas}
-			class="absolute inset-0 m-auto transition-opacity"
+		<iframe
+			class="absolute inset-0 size-full border-none"
 			class:opacity-0={isLoading}
-		></canvas>
+			title="Vista previa del calendario"
+			{src}
+		>
+		</iframe>
 	{/if}
 </article>

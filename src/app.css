@@ -5,8 +5,10 @@
 @theme {
 	--font-sans: 'Work Sans Variable', sans-serif;
 	--font-brand: 'Momo Signature', sans-serif;
-	--scrollbar-track: theme('colors.neutral.700');
-	--scrollbar-thumb: theme('colors.neutral.500');
+	--scrollbar-track: var(--color-neutral-700);
+	--scrollbar-thumb: var(--color-neutral-500);
+
+	--color-pdf: #282828;
 
 	--color-brown-50: #faf4f2;
 	--color-brown-100: #f5ebe5;

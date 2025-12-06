@@ -14,12 +14,16 @@ export function generateCalendar(year: number): CalendarYear {
 
   const days: CalendarDay[] = Array.from({ length: totalDays }, (_, i) => {
     const date = new Date(year, 0, i + 1);
+    const yearDate = date.getFullYear().toString();
+    const monthDate = (date.getMonth() + 1).toString().padStart(2, "0");
+    const dayDate = date.getDate().toString().padStart(2, "0");
+
     return {
       date,
       day: date.getDate(),
       weekday: weekdayES(date),
       month: date.getMonth(),
-      iso: date.toISOString().slice(0, 10),
+      iso: `${yearDate}-${monthDate}-${dayDate}`,
     };
   });
 

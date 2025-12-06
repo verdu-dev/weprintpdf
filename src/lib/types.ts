@@ -13,14 +13,13 @@ export interface CalendarOptions {
   year: string,
   size: DocSize
   orientation: DocOrientation,
-  grid: "3,4" | "4,3" | "2,6" | "6,2",
   sundays: boolean,
+  monthBox: boolean,
   dayBox: boolean,
-  textSize: "s" | "m" | "l"
   image: string | null;
   multipage: boolean,
-  holydays: boolean,
-  saints: boolean,
+  holidays: boolean,
+  labelHolidays: boolean,
   logo: {
     img: HTMLImageElement,
     format: string,
@@ -34,18 +33,39 @@ export interface CalendarDay {
   weekday: number;
   month: number;
   iso: string;
-  isToday?: boolean;
   holiday?: boolean;
   holidayName?: string;
 };
 
+export type CalendarWeek = (CalendarDay | null)[];
+
 export interface CalendarMonth {
   month: number;
   name: string;
-  weeks: (CalendarDay | null)[][];
+  weeks: CalendarWeek[];
 };
 
 export interface CalendarYear {
   year: number;
   months: CalendarMonth[];
 };
+
+export interface Holiday {
+  date: string;
+  localName: string;
+  name: string;
+  countryCode: CountryCode;
+  fixed: boolean;
+  global: boolean;
+  counties: string[] | null;
+  launchYear: null;
+  types: Type[];
+}
+
+export enum CountryCode {
+  Es = "ES",
+}
+
+export enum Type {
+  Public = "Public",
+}

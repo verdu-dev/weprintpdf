@@ -7,7 +7,7 @@
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
 	$: printCalendar = $calendarOptions.multipage ? createAnualMultipage : createAnual;
-	let logo: FileList | null = null;
+	/* let logo: FileList | null = null;
 
 	$: if (logo && logo.length > 0) {
 		const file = logo[0];
@@ -33,7 +33,7 @@
 		};
 
 		reader.readAsDataURL(file);
-	}
+	} */
 
 	onMount(printCalendar);
 	$: ($calendarOptions, printCalendar());
@@ -46,10 +46,10 @@
 		link.click();
 	}
 
-	function removeLogo() {
+	/* function removeLogo() {
 		$calendarOptions.logo = null;
 		logo = null;
-	}
+	} */
 </script>
 
 <aside
@@ -114,32 +114,33 @@
 			</select>
 		</label>
 
-		{#if !$calendarOptions.multipage}
-			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Regilla</p>
+		<div class="flex w-full gap-4">
+			{#if !$calendarOptions.multipage}
+				<label class="flex grow flex-col gap-1">
+					<p class="text-sm font-medium">Marcar meses</p>
+
+					<select
+						class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+						bind:value={$calendarOptions.monthBox}
+					>
+						<option value={true}>Si</option>
+						<option value={false}>No</option>
+					</select>
+				</label>
+			{/if}
+
+			<label class="flex grow flex-col gap-1">
+				<p class="text-sm font-medium">Recuadro dias</p>
 
 				<select
 					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-					bind:value={$calendarOptions.grid}
+					bind:value={$calendarOptions.dayBox}
 				>
-					<option value="4,3">4 / 3</option>
-					<option value="3,4">3 / 4</option>
+					<option value={true}>Si</option>
+					<option value={false}>No</option>
 				</select>
 			</label>
-		{/if}
-
-		<label class="flex flex-col gap-1">
-			<p class="text-sm font-medium">Tamaño texto</p>
-
-			<select
-				class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-				bind:value={$calendarOptions.textSize}
-			>
-				<option value="s">Pequeño</option>
-				<option value="m">Mediano</option>
-				<option value="l">Grande</option>
-			</select>
-		</label>
+		</div>
 
 		<div class="grid grid-cols-2 gap-4">
 			<label class="flex flex-col gap-1">
@@ -155,47 +156,33 @@
 			</label>
 
 			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Recuadro dias</p>
-
-				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-					bind:value={$calendarOptions.dayBox}
-				>
-					<option value={true}>Si</option>
-					<option value={false}>No</option>
-				</select>
-			</label>
-		</div>
-
-		<div class="flex w-full gap-4">
-			<label class="flex flex-1 flex-col gap-1">
 				<p class="text-sm font-medium">Marcar festivos</p>
 
 				<select
 					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-					bind:value={$calendarOptions.holydays}
+					bind:value={$calendarOptions.holidays}
 				>
 					<option value={true}>Si</option>
 					<option value={false}>No</option>
 				</select>
 			</label>
-
-			{#if $calendarOptions.multipage}
-				<label class="flex flex-1 flex-col gap-1">
-					<p class="text-sm font-medium">Santuario</p>
-
-					<select
-						class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-						bind:value={$calendarOptions.saints}
-					>
-						<option value={true}>Si</option>
-						<option value={false}>No</option>
-					</select>
-				</label>
-			{/if}
 		</div>
 
-		<label class="flex flex-1 flex-col gap-1">
+		{#if $calendarOptions.holidays && $calendarOptions.multipage}
+			<label class="flex flex-col gap-1">
+				<p class="text-sm font-medium">Etiquetar festivos</p>
+
+				<select
+					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+					bind:value={$calendarOptions.labelHolidays}
+				>
+					<option value={true}>Si</option>
+					<option value={false}>No</option>
+				</select>
+			</label>
+		{/if}
+
+		<!-- <label class="flex flex-1 flex-col gap-1">
 			<p class="text-sm font-medium">Logotipo</p>
 
 			<input
@@ -210,10 +197,10 @@
 			<button class=" bg-white px-3 py-2 text-black" type="button" on:click={removeLogo}>
 				Borrar
 			</button>
-		{/if}
+		{/if} -->
 
 		<button
-			class="mt-4 cursor-pointer bg-neutral-900 bg-brown-200 px-4 py-2 text-neutral-100"
+			class="mt-4 cursor-pointer bg-neutral-900 px-4 py-2 text-neutral-100"
 			type="button"
 			on:click={downloadPDF}
 		>
