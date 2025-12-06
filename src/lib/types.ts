@@ -14,8 +14,6 @@ export interface CalendarOptions {
   size: DocSize
   orientation: DocOrientation,
   sundays: boolean,
-  monthBox: boolean,
-  dayBox: boolean,
   image: string | null;
   multipage: boolean,
   holidays: boolean,

@@ -10,11 +10,9 @@ export const calendarOptions: Writable<CalendarOptions> = writable({
   size: DocSize.A4,
   orientation: DocOrientation.PORTRAIT,
   sundays: true,
-  monthBox: false,
-  dayBox: true,
-  image: null,
   multipage: true,
-  holidays: false,
+  holidays: true,
   labelHolidays: false,
+  image: null,
   logo: null
 });

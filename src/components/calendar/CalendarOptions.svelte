@@ -114,34 +114,6 @@
 			</select>
 		</label>
 
-		<div class="flex w-full gap-4">
-			{#if !$calendarOptions.multipage}
-				<label class="flex grow flex-col gap-1">
-					<p class="text-sm font-medium">Marcar meses</p>
-
-					<select
-						class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-						bind:value={$calendarOptions.monthBox}
-					>
-						<option value={true}>Si</option>
-						<option value={false}>No</option>
-					</select>
-				</label>
-			{/if}
-
-			<label class="flex grow flex-col gap-1">
-				<p class="text-sm font-medium">Recuadro dias</p>
-
-				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-					bind:value={$calendarOptions.dayBox}
-				>
-					<option value={true}>Si</option>
-					<option value={false}>No</option>
-				</select>
-			</label>
-		</div>
-
 		<div class="grid grid-cols-2 gap-4">
 			<label class="flex flex-col gap-1">
 				<p class="text-sm font-medium">Marcar domingos</p>

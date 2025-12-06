@@ -10,7 +10,8 @@ export const fontSizeA4 = {
   weekDays: base / scaleFactor,
 
   baseMultipage: base * (scaleFactor * scaleFactor),
-  weekDaysMultipage: base
+  weekDaysMultipage: base,
+  holiday: 7
 }
 
 export const fontSizeA3 = {
@@ -20,5 +21,6 @@ export const fontSizeA3 = {
   weekDays: base,
 
   baseMultipage: (base * scaleFactor) * (scaleFactor * scaleFactor),
-  weekDaysMultipage: base * scaleFactor
+  weekDaysMultipage: base * scaleFactor,
+  holiday: 9
 }

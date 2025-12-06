@@ -13,8 +13,8 @@ import { fontSizeA3, fontSizeA4 } from "@/lib/consts";
 const apiUrl = (year: number | string) => `https://date.nager.at/api/v3/PublicHolidays/${year}/es`;
 const margin = 7;
 const gap = 5;
-const dayCols = 7;
-const dayRows = 8;
+const innerMargin = 3;
+const titleHeight = 30;
 
 const fontFamily = "inter";
 const baseColor = "black";
@@ -23,11 +23,17 @@ const holidayColor = "red";
 const outlineColor = "gray";
 const outlineWidth = 0.1;
 
+const dayCols = 7;
+let dayRows = 8;
+
+let doc: jsPDF;
+let options: CalendarOptions;
 
 const fontSize = {
   title: fontSizeA4.title,
   weekDays: fontSizeA4.weekDays,
   base: fontSizeA4.base,
+  holiday: fontSizeA4.holiday
 }
 
 const pageSize = { width: 0, height: 0 };
@@ -37,10 +43,12 @@ const monthGrid = { cols: 3, rows: 4, gapX: 0, gapY: 0 };
 const monthBox = { width: 0, height: 0 };
 const dayBox = { width: 0, height: 0 };
 
-function setBase() {
-  const options = get(calendarOptions);
 
-  const doc = new jsPDF({
+
+function setBase() {
+  options = get(calendarOptions);
+
+  doc = new jsPDF({
     unit: "mm",
     format: options.size,
     orientation: options.orientation,
@@ -57,22 +65,24 @@ function setBase() {
   pageSize.width = doc.internal.pageSize.getWidth();
   pageSize.height = doc.internal.pageSize.getHeight();
 
-  return { doc, options };
+  dayRows = options.multipage ? 7 : 8;
 }
 
-function setFontSize(options: CalendarOptions) {
+function setFontSize() {
   if (options.size === DocSize.A4) {
     fontSize.title = fontSizeA4.title;
     fontSize.weekDays = options.multipage ? fontSizeA4.weekDaysMultipage : fontSizeA4.weekDays;
     fontSize.base = options.multipage ? fontSizeA4.baseMultipage : fontSizeA4.base;
+    fontSize.holiday = fontSizeA4.holiday;
   } else if (options.size === DocSize.A3) {
     fontSize.title = fontSizeA3.title;
     fontSize.weekDays = options.multipage ? fontSizeA3.weekDaysMultipage : fontSizeA3.weekDays;
     fontSize.base = options.multipage ? fontSizeA3.baseMultipage : fontSizeA3.base;
+    fontSize.holiday = fontSizeA3.holiday;
   }
 }
 
-async function setHolidays(year: number, options: CalendarOptions, months: CalendarMonth[]) {
+async function setHolidays(year: number, months: CalendarMonth[]) {
   if (options.holidays) {
     try {
       const req = await fetch(apiUrl(year));
@@ -110,25 +120,43 @@ async function setHolidays(year: number, options: CalendarOptions, months: Calen
   return months;
 }
 
-function setTitle(doc: jsPDF, title: string) {
-  titleBox.x = 0;
-  titleBox.y = 0;
-  titleBox.width = pageSize.width;
-  titleBox.height = 30;
+function debugBox(x: number, y: number, width: number, height: number) {
+  doc.setDrawColor(holidayColor);
+  doc.setLineWidth(outlineWidth);
+  doc.rect(x, y, width, height);
+};
 
-  /* doc.rect(titleBox.x, titleBox.y, titleBox.width, titleBox.height); */
+function setTitle(title: string) {
+  titleBox.x = margin;
+  titleBox.y = margin;
+  titleBox.width = pageSize.width - (margin * 2);
+  titleBox.height = titleHeight - margin;
+
+  const titleBoxCenterX = titleBox.width / 2 + titleBox.x;
+  const titleBoxCenterY = titleBox.height / 2 + titleBox.y;
+
+  /* debugBox(titleBox.x, titleBox.y, titleBox.width, titleBox.height); */
 
   doc.setFontSize(fontSize.title)
     .setTextColor(baseColor)
     .setFont(fontFamily, "bold");
 
-  doc.text(title, pageSize.width / 2, titleBox.y + titleBox.height / 2, {
+  doc.text(title, titleBoxCenterX, titleBoxCenterY, {
     baseline: "middle",
     align: "center"
   });
 }
 
-function setMonthsGrid(options: CalendarOptions) {
+function setCalendarBox() {
+  calendarBox.x = margin;
+  calendarBox.y = titleBox.height + margin;
+  calendarBox.width = pageSize.width - (margin * 2);
+  calendarBox.height = pageSize.height - titleBox.height - (margin * 2);
+
+  /* debugBox(calendarBox.x, calendarBox.y, calendarBox.width, calendarBox.height); */
+}
+
+function setMonthsGrid() {
   if (options.orientation === DocOrientation.LANDSCAPE) {
     monthGrid.cols = 4;
     monthGrid.rows = 3;
@@ -143,16 +171,7 @@ function setMonthsGrid(options: CalendarOptions) {
   monthGrid.gapY = (gap * gapsOnY) / monthGrid.rows;
 }
 
-function setCalendarBox() {
-  calendarBox.x = margin;
-  calendarBox.y = titleBox.height;
-  calendarBox.width = pageSize.width - (margin * 2);
-  calendarBox.height = pageSize.height - margin - titleBox.height;
-
-  /* doc.rect(calendarBox.x, calendarBox.y, calendarBox.width, calendarBox.height); */
-}
-
-function setMonthBox(options: CalendarOptions) {
+function setMonthBox() {
   if (options.multipage) {
     monthBox.width = calendarBox.width;
     monthBox.height = calendarBox.height;
@@ -162,12 +181,84 @@ function setMonthBox(options: CalendarOptions) {
   }
 }
 
-function setDayBox() {
-  dayBox.width = monthBox.width / dayCols;
-  dayBox.height = monthBox.height / dayRows;
+function setMonths(splittedMonths: CalendarMonth[][]) {
+  splittedMonths.forEach((chunk, chunkInd) => {
+    chunk.forEach((month, monthInd) => {
+      const monthX = calendarBox.x + (monthInd * monthBox.width) + (monthInd < 1 ? 0 : gap * monthInd);
+      const monthY = calendarBox.y + (chunkInd * monthBox.height) + (chunkInd < 1 ? 0 : gap * chunkInd);
+
+      const monthCenterX = monthX + monthBox.width / 2;
+      const monthCenterY = monthY + dayBox.height / 2;
+
+      doc.setFontSize(fontSize.base)
+        .setTextColor(baseColor)
+        .setFont(fontFamily, "normal");
+
+      doc.text(month.name, monthCenterX, monthCenterY, {
+        baseline: "middle",
+        align: "center"
+      });
+
+
+      setWeekDays(monthX, monthY);
+      setWeeks(month, monthX, monthY);
+    })
+  })
 }
 
-function setDays(doc: jsPDF, week: CalendarWeek, weekX: number, weekY: number, options: CalendarOptions) {
+function setWeekDays(monthX: number, monthY: number) {
+  Object.values(WEEKDAYS_NAMES).forEach((weekday, weekdayInd) => {
+    const weekdayX = monthX + dayBox.width * weekdayInd;
+    const weekdayY = options.multipage ? monthY : monthY + dayBox.height;
+    const weekdayCenterX = weekdayX + dayBox.width / 2;
+    const weekdayCenterY = weekdayY + dayBox.height / 2;
+
+    /* debugBox(weekdayX, weekdayY, dayBox.width, dayBox.height); */
+
+    doc.setFontSize(fontSize.weekDays)
+      .setTextColor(weekDaysColor)
+      .setFont(fontFamily, "normal");
+
+    if (options.multipage) {
+      doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayY + dayBox.height - margin, {
+        baseline: "bottom",
+        align: "center"
+      })
+    } else {
+      doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayCenterY, {
+        baseline: "middle",
+        align: "center"
+      })
+    }
+  });
+}
+
+function setWeeks(month: CalendarMonth, monthX: number, monthY: number) {
+  month.weeks.forEach((week, weekInd) => {
+    const weekX = monthX;
+    let weekY = monthY + ((weekInd + 2) * dayBox.height);
+
+    if (options.multipage) {
+      weekY = monthY + ((weekInd + 1) * dayBox.height);
+    }
+
+    /* debugBox(weekX, weekY, monthBox.width, dayBox.height); */
+
+    setDays(week, weekX, weekY);
+  })
+}
+
+function setDayBox() {
+  if (options.multipage) {
+    dayBox.width = calendarBox.width / dayCols;
+    dayBox.height = calendarBox.height / dayRows;
+  } else {
+    dayBox.width = monthBox.width / dayCols;
+    dayBox.height = monthBox.height / dayRows;
+  }
+}
+
+function setDays(week: CalendarWeek, weekX: number, weekY: number) {
   week.forEach((day, dayInd) => {
     const dayX = weekX + dayBox.width * dayInd;
     const dayY = weekY;
@@ -176,11 +267,9 @@ function setDays(doc: jsPDF, week: CalendarWeek, weekX: number, weekY: number, o
 
 
     if (day && day.day) {
-      if (options.dayBox) {
-        doc.setDrawColor(outlineColor);
-        doc.setLineWidth(outlineWidth);
-        doc.rect(dayX, dayY, dayBox.width, dayBox.height, "D");
-      }
+      doc.setDrawColor(outlineColor);
+      doc.setLineWidth(outlineWidth);
+      doc.rect(dayX, dayY, dayBox.width, dayBox.height, "D");
 
       const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
 
@@ -194,121 +283,83 @@ function setDays(doc: jsPDF, week: CalendarWeek, weekX: number, weekY: number, o
           .setFont(fontFamily, "normal");
       }
 
-      doc.text(`${day.day}`, dayCenterX, dayCenterY, {
-        baseline: "middle",
-        align: "center"
-      })
+      if (options.multipage && options.labelHolidays) {
+        doc.text(`${day.day}`, dayX + dayBox.width - innerMargin, dayY + innerMargin, {
+          baseline: "top",
+          align: "right"
+        });
+
+        if (day.holiday) {
+          doc.setFontSize(fontSize.holiday)
+            .setTextColor(weekDaysColor)
+            .setFont(fontFamily, "normal");
+
+          const textHeight = doc.getTextDimensions(`${day.holidayName}`, {
+            maxWidth: dayBox.width - (innerMargin * 2),
+          }).h;
+
+
+          doc.text(`${day.holidayName}`, dayX + dayBox.width - innerMargin, dayY + dayBox.height - innerMargin - textHeight, {
+            baseline: "top",
+            align: "right",
+            maxWidth: dayBox.width - (innerMargin * 2),
+          });
+        }
+      } else {
+        doc.text(`${day.day}`, dayCenterX, dayCenterY, {
+          baseline: "middle",
+          align: "center"
+        });
+      }
     }
   })
 }
 
-function setWeeks(doc: jsPDF, month: CalendarMonth, monthX: number, monthY: number, options: CalendarOptions) {
-  month.weeks.forEach((week, weekInd) => {
-    const weekX = monthX;
-    const weekY = monthY + ((weekInd + 2) * dayBox.height);
-
-    /* doc.setDrawColor("red");
-    doc.rect(weekX, weekY, monthWidth, dayHeight); */
-
-    setDays(doc, week, weekX, weekY, options);
-  })
-}
-
-function setWeekDays(doc: jsPDF, monthX: number, monthY: number) {
-  Object.values(WEEKDAYS_NAMES).forEach((weekday, weekdayInd) => {
-    const weekdayX = monthX + dayBox.width * weekdayInd;
-    const weekdayY = monthY + dayBox.height;
-    const weekdayCenterX = weekdayX + dayBox.width / 2;
-    const weekdayCenterY = weekdayY + dayBox.height / 2;
-
-    /* doc.setDrawColor("green");
-    doc.rect(weekdayX, weekdayY, dayWidth, dayHeight); */
-
-    doc.setFontSize(fontSize.weekDays)
-      .setTextColor(weekDaysColor)
-      .setFont(fontFamily, "normal");
-
-    doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayCenterY, {
-      baseline: "middle",
-      align: "center"
-    })
-  });
-}
-
-function setMonths(doc: jsPDF, splittedMonths: CalendarMonth[][], options: CalendarOptions) {
-  splittedMonths.forEach((chunk, chunkInd) => {
-    chunk.forEach((month, monthInd) => {
-      const monthX = calendarBox.x + (monthInd * monthBox.width) + (monthInd < 1 ? 0 : gap * monthInd);
-      const monthY = calendarBox.y + (chunkInd * monthBox.height) + (chunkInd < 1 ? 0 : gap * chunkInd);
-      const monthCenterX = monthX + monthBox.width / 2;
-      const monthCenterY = monthY + dayBox.height / 2;
-
-      if (options.monthBox) {
-        doc.setDrawColor(outlineColor);
-        doc.setLineWidth(outlineWidth);
-        doc.rect(monthX, monthY, monthBox.width, monthBox.height, "D");
-      }
-
-      doc.setFontSize(fontSize.base)
-        .setTextColor(baseColor)
-        .setFont(fontFamily, "normal");
-
-      doc.text(month.name, monthCenterX, monthCenterY, {
-        baseline: "middle",
-        align: "center"
-      });
-
-
-      setWeekDays(doc, monthX, monthY);
-      setWeeks(doc, month, monthX, monthY, options);
-    })
-  })
-}
-
-function setOutput(doc: jsPDF) {
+function setOutput() {
   const pdfOutput = doc.output("bloburi")
   bloburi.set(pdfOutput.toString());
 }
 
 export async function createAnual() {
-  const { doc, options } = setBase();
+  setBase();
   const year = Number(options.year);
+  setFontSize();
 
-  setFontSize(options);
-  setTitle(doc, options.year);
+  setTitle(options.year);
   setCalendarBox();
-  setMonthsGrid(options);
-  setMonthBox(options);
+  setMonthsGrid();
+  setMonthBox();
   setDayBox();
 
   const calendar = generateCalendar(year);
-  calendar.months = await setHolidays(year, options, calendar.months);
+  calendar.months = await setHolidays(year, calendar.months);
   const splittedMonths = splitArray(calendar.months, monthGrid.cols);
 
-  setMonths(doc, splittedMonths, options);
-  setOutput(doc);
+  setMonths(splittedMonths);
+  setOutput();
 }
 
 export async function createAnualMultipage() {
-  const { doc, options } = setBase();
+  setBase();
   const year = Number(options.year);
 
-  setFontSize(options);
-  setCalendarBox();
-  setMonthBox(options);
-  setDayBox();
+  setFontSize();
 
   const calendar = generateCalendar(year);
-  calendar.months = await setHolidays(year, options, calendar.months);
+  calendar.months = await setHolidays(year, calendar.months);
 
   calendar.months.forEach((month, monthInd) => {
     if (monthInd > 0) doc.addPage();
 
-    setTitle(doc, month.name);
-    setWeekDays(doc, margin, titleBox.height + margin);
-    setWeeks(doc, month, margin, titleBox.height + margin, options);
+    setTitle(month.name);
+    setCalendarBox();
+    setMonthBox();
+    setDayBox();
+
+    setWeekDays(margin, calendarBox.y);
+    setWeeks(month, margin, calendarBox.y);
   })
 
 
-  setOutput(doc);
+  setOutput();
 }
