@@ -7,33 +7,41 @@
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
 	$: printCalendar = $calendarOptions.multipage ? createAnualMultipage : createAnual;
-	/* let logo: FileList | null = null;
 
-	$: if (logo && logo.length > 0) {
-		const file = logo[0];
-		const reader = new FileReader();
-		const fileType = file.type;
-		const [_, format] = fileType.split('/');
+	const images: (FileList | null)[] = Array.from({ length: 12 }, () => null);
 
-		reader.onload = (e) => {
-			const dataUrl = e.target?.result as string;
-			const img = new Image();
+	$: if (images && images.length > 0) {
+		for (let i = 0; i < images.length; i++) {
+			const file = images[i]?.[0];
+			if (!file) continue;
 
-			img.onload = () => {
-				const aspectRatio = img.height / img.width;
+			const reader = new FileReader();
+			const fileType = file.type;
+			const [_, format] = fileType.split('/');
 
-				$calendarOptions.logo = {
-					img,
-					format,
-					aspectRatio
+			reader.onload = (ev) => {
+				const dataUrl = ev.target?.result as string;
+				const img = new Image();
+
+				img.onload = () => {
+					const aspectRatio = img.height / img.width;
+
+					const monthImage = {
+						img,
+						format,
+						aspectRatio,
+						monthIndex: i
+					};
+
+					$calendarOptions.images[i] = monthImage;
 				};
+
+				img.src = dataUrl;
 			};
 
-			img.src = dataUrl;
-		};
-
-		reader.readAsDataURL(file);
-	} */
+			reader.readAsDataURL(file);
+		}
+	}
 
 	onMount(printCalendar);
 	$: ($calendarOptions, printCalendar());
@@ -45,11 +53,6 @@
 		link.download = `calendario-${$calendarOptions.year}.pdf`;
 		link.click();
 	}
-
-	/* function removeLogo() {
-		$calendarOptions.logo = null;
-		logo = null;
-	} */
 </script>
 
 <aside
@@ -154,22 +157,27 @@
 			</label>
 		{/if}
 
-		<!-- <label class="flex flex-1 flex-col gap-1">
-			<p class="text-sm font-medium">Logotipo</p>
+		<label class="flex flex-col gap-1">
+			<p class="text-sm font-medium">Imagen enero</p>
 
 			<input
 				class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
 				type="file"
-				accept="image/png, image/jpeg, image/webp"
-				bind:files={logo}
+				accept="image/png, image/jpeg, image/webp, image/avif"
+				bind:files={images[0]}
 			/>
 		</label>
 
-		{#if $calendarOptions.logo}
-			<button class=" bg-white px-3 py-2 text-black" type="button" on:click={removeLogo}>
-				Borrar
-			</button>
-		{/if} -->
+		<label class="flex flex-col gap-1">
+			<p class="text-sm font-medium">Imagen febrero</p>
+
+			<input
+				class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+				type="file"
+				accept="image/png, image/jpeg, image/webp, image/avif"
+				bind:files={images[1]}
+			/>
+		</label>
 
 		<button
 			class="mt-4 cursor-pointer bg-neutral-900 px-4 py-2 text-neutral-100"

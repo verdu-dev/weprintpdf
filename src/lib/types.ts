@@ -9,20 +9,22 @@ export interface Tool {
   slug: string;
 }
 
+export interface MonthImage {
+  monthIndex: number,
+  img: HTMLImageElement,
+  format: string,
+  aspectRatio: number
+}
+
 export interface CalendarOptions {
   year: string,
   size: DocSize
   orientation: DocOrientation,
   sundays: boolean,
-  image: string | null;
   multipage: boolean,
   holidays: boolean,
   labelHolidays: boolean,
-  logo: {
-    img: HTMLImageElement,
-    format: string,
-    aspectRatio: number
-  } | null;
+  images: (MonthImage | null)[];
 }
 
 export interface CalendarDay {

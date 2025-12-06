@@ -13,6 +13,5 @@ export const calendarOptions: Writable<CalendarOptions> = writable({
   multipage: true,
   holidays: true,
   labelHolidays: false,
-  image: null,
-  logo: null
+  images: []
 });
