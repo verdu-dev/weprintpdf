@@ -11,6 +11,7 @@ export const calendarOptions: Writable<CalendarOptions> = writable({
   orientation: DocOrientation.PORTRAIT,
   sundays: true,
   multipage: true,
+  cover: false,
   holidays: true,
   labelHolidays: false,
   images: []

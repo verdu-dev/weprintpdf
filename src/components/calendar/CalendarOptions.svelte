@@ -3,12 +3,30 @@
 	import { DocOrientation, DocSize } from '@/lib/enums';
 	import { createAnual, createAnualMultipage } from '@/lib/pdf/calendar';
 	import { bloburi, calendarOptions } from '@/lib/stores';
+	import Page from '@/lib/icons/Page.svelte';
+	import Pages from '@/lib/icons/Pages.svelte';
+	import ImageUploader from '@/components/ImageUploader.svelte';
 
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
 	$: printCalendar = $calendarOptions.multipage ? createAnualMultipage : createAnual;
+	$: calendarStyle = 'multipage';
 
-	const images: (FileList | null)[] = Array.from({ length: 12 }, () => null);
+	$: if (calendarStyle === 'single') {
+		$calendarOptions.cover = false;
+		$calendarOptions.multipage = false;
+		printCalendar = createAnual;
+	} else if (calendarStyle === 'multipage') {
+		$calendarOptions.cover = false;
+		$calendarOptions.multipage = true;
+		printCalendar = createAnualMultipage;
+	} else if (calendarStyle === 'cover') {
+		$calendarOptions.cover = true;
+		$calendarOptions.multipage = true;
+		printCalendar = createAnualMultipage;
+	}
+
+	let images: (FileList | null)[] = Array.from({ length: 12 }, () => null);
 
 	$: if (images && images.length > 0) {
 		for (let i = 0; i < images.length; i++) {
@@ -45,6 +63,11 @@
 
 	onMount(printCalendar);
 	$: ($calendarOptions, printCalendar());
+
+	function removeImage(monthIndex: number) {
+		$calendarOptions.images[monthIndex] = null;
+		images[monthIndex] = null;
+	}
 
 	function downloadPDF() {
 		const blobUrl = $bloburi;
@@ -104,8 +127,43 @@
 				</select>
 			</label>
 		</div>
+		<div class="flex flex-col gap-1">
+			<p class="text-sm font-medium">Estilo</p>
 
-		<label class="flex flex-col gap-1">
+			<div class="grid grid-cols-3 gap-4">
+				<label
+					class:bg-brown-400={calendarStyle === 'single'}
+					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2"
+				>
+					<Page class="size-6" />
+					<p class="text-sm font-medium">1 Página</p>
+
+					<input class="hidden" type="radio" bind:group={calendarStyle} value="single" />
+				</label>
+
+				<label
+					class:bg-brown-400={calendarStyle === 'multipage'}
+					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2"
+				>
+					<Pages class="size-6" />
+					<p class="text-sm font-medium">12 Páginas</p>
+
+					<input class="hidden" type="radio" bind:group={calendarStyle} value="multipage" />
+				</label>
+
+				<label
+					class:bg-brown-400={calendarStyle === 'cover'}
+					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2"
+				>
+					<Pages class="size-6" />
+					<p class="text-sm font-medium">13 Páginas</p>
+
+					<input class="hidden" type="radio" bind:group={calendarStyle} value="cover" />
+				</label>
+			</div>
+		</div>
+
+		<!-- <label class="flex flex-col gap-1">
 			<p class="text-sm font-medium">Multipágina</p>
 
 			<select
@@ -141,7 +199,7 @@
 					<option value={false}>No</option>
 				</select>
 			</label>
-		</div>
+		</div> -->
 
 		{#if $calendarOptions.holidays && $calendarOptions.multipage}
 			<label class="flex flex-col gap-1">
@@ -157,27 +215,21 @@
 			</label>
 		{/if}
 
-		<label class="flex flex-col gap-1">
-			<p class="text-sm font-medium">Imagen enero</p>
+		{#if $calendarOptions.multipage}
+			<details class="flex w-full flex-col gap-1" open>
+				<summary class="text-sm font-medium">Imagenes</summary>
 
-			<input
-				class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-				type="file"
-				accept="image/png, image/jpeg, image/webp, image/avif"
-				bind:files={images[0]}
-			/>
-		</label>
+				<div class="grid grid-cols-3 gap-2">
+					{#if $calendarOptions.cover}
+						<ImageUploader monthIndex={12} {removeImage} bind:images />
+					{/if}
 
-		<label class="flex flex-col gap-1">
-			<p class="text-sm font-medium">Imagen febrero</p>
-
-			<input
-				class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
-				type="file"
-				accept="image/png, image/jpeg, image/webp, image/avif"
-				bind:files={images[1]}
-			/>
-		</label>
+					{#each images as image, monthIndex}
+						<ImageUploader {monthIndex} {removeImage} bind:images />
+					{/each}
+				</div>
+			</details>
+		{/if}
 
 		<button
 			class="mt-4 cursor-pointer bg-neutral-900 px-4 py-2 text-neutral-100"

@@ -22,6 +22,7 @@ export interface CalendarOptions {
   orientation: DocOrientation,
   sundays: boolean,
   multipage: boolean,
+  cover: boolean,
   holidays: boolean,
   labelHolidays: boolean,
   images: (MonthImage | null)[];

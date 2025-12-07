@@ -14,7 +14,8 @@ const apiUrl = (year: number | string) => `https://date.nager.at/api/v3/PublicHo
 const margin = 7;
 const gap = 5;
 const innerMargin = 3;
-const titleHeight = 30;
+const titleHeight = 20;
+// const weekDaysHeight = 10; TODO: make this work
 
 const fontFamily = "inter";
 const baseColor = "black";
@@ -37,6 +38,7 @@ const fontSize = {
 }
 
 const pageSize = { width: 0, height: 0 };
+const imagesBox = { x: 0, y: 0, width: 0, height: 0 };
 const titleBox = { x: 0, y: 0, width: 0, height: 0 };
 const calendarBox = { x: 0, y: 0, width: 0, height: 0 };
 const monthGrid = { cols: 3, rows: 4, gapX: 0, gapY: 0 };
@@ -126,32 +128,63 @@ function debugBox(x: number, y: number, width: number, height: number) {
   doc.rect(x, y, width, height);
 };
 
+function setMonthImage(monthIndex: number) {
+  const monthImage = options.images[monthIndex];
+
+  if (!monthImage) {
+    imagesBox.width = 0;
+    imagesBox.height = 0;
+
+    return;
+  }
+
+  if (options.orientation === DocOrientation.LANDSCAPE) {
+    imagesBox.height = pageSize.height / 2.5;
+  } else {
+    imagesBox.height = pageSize.width / 1.6;
+  }
+
+  imagesBox.x = ((imagesBox.height / monthImage.aspectRatio) / 4) * -1;
+  imagesBox.width = imagesBox.height / monthImage.aspectRatio;
+
+  doc.addImage(monthImage.img, monthImage.format, imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height);
+
+  /* debugBox(imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height); */
+}
+
 function setTitle(title: string) {
   titleBox.x = margin;
-  titleBox.y = margin;
+  titleBox.y = imagesBox.height;
   titleBox.width = pageSize.width - (margin * 2);
-  titleBox.height = titleHeight - margin;
+  titleBox.height = titleHeight;
 
   const titleBoxCenterX = titleBox.width / 2 + titleBox.x;
   const titleBoxCenterY = titleBox.height / 2 + titleBox.y;
-
-  /* debugBox(titleBox.x, titleBox.y, titleBox.width, titleBox.height); */
 
   doc.setFontSize(fontSize.title)
     .setTextColor(baseColor)
     .setFont(fontFamily, "bold");
 
-  doc.text(title, titleBoxCenterX, titleBoxCenterY, {
-    baseline: "middle",
-    align: "center"
-  });
+  if (options.multipage) {
+    doc.text(title, titleBoxCenterX, titleBox.y + titleBox.height, {
+      baseline: "bottom",
+      align: "center"
+    });
+  } else {
+    doc.text(title, titleBoxCenterX, titleBoxCenterY, {
+      baseline: "middle",
+      align: "center"
+    });
+  }
+
+  /* debugBox(titleBox.x, titleBox.y, titleBox.width, titleBox.height); */
 }
 
 function setCalendarBox() {
   calendarBox.x = margin;
-  calendarBox.y = titleBox.height + margin;
+  calendarBox.y = titleBox.height + imagesBox.height + margin;
   calendarBox.width = pageSize.width - (margin * 2);
-  calendarBox.height = pageSize.height - titleBox.height - (margin * 2);
+  calendarBox.height = pageSize.height - titleBox.height - imagesBox.height - (margin * 2);
 
   /* debugBox(calendarBox.x, calendarBox.y, calendarBox.width, calendarBox.height); */
 }
@@ -351,6 +384,7 @@ export async function createAnualMultipage() {
   calendar.months.forEach((month, monthInd) => {
     if (monthInd > 0) doc.addPage();
 
+    setMonthImage(monthInd);
     setTitle(month.name);
     setCalendarBox();
     setMonthBox();
