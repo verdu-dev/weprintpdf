@@ -144,7 +144,9 @@ function setMonthImage(monthIndex: number) {
     imagesBox.height = pageSize.width / 1.6;
   }
 
-  imagesBox.x = ((imagesBox.height / monthImage.aspectRatio) / 4) * -1;
+  const centerX = pageSize.width / 2;
+
+  imagesBox.x = centerX - (imagesBox.height / monthImage.aspectRatio) / 2;
   imagesBox.width = imagesBox.height / monthImage.aspectRatio;
 
   doc.addImage(monthImage.img, monthImage.format, imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height);
