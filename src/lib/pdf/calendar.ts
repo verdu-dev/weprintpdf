@@ -45,8 +45,6 @@ const monthGrid = { cols: 3, rows: 4, gapX: 0, gapY: 0 };
 const monthBox = { width: 0, height: 0 };
 const dayBox = { width: 0, height: 0 };
 
-
-
 function setBase() {
   options = get(calendarOptions);
 
@@ -128,28 +126,98 @@ function debugBox(x: number, y: number, width: number, height: number) {
   doc.rect(x, y, width, height);
 };
 
+function setCoverPage() {
+  const coverImage = options.images[12];
+  if (!coverImage) return;
+
+  const coverBoxX = 0;
+  const coverBoxY = 0;
+  const coverBoxWidth = pageSize.width;
+  const coverBoxHeight = pageSize.height;
+  const widthGreater = coverImage.aspectRatio < 1;
+  const pageRatio = pageSize.width / pageSize.height;
+
+  let coverX = 0;
+  let coverY = 0;
+  let coverWidth = 0;
+  let coverHeight = 0;
+  let coverCenterX = 0;
+  let coverCenterY = 0;
+
+  if (widthGreater) {
+    coverCenterX = coverBoxWidth / 2 - (coverBoxHeight / coverImage.aspectRatio) / 2;
+    coverX = pageRatio > coverImage.aspectRatio ? coverCenterX : 0;
+    coverY = pageRatio > coverImage.aspectRatio ? 0 : coverCenterY;
+    coverWidth = pageRatio > coverImage.aspectRatio ? coverBoxHeight / coverImage.aspectRatio : coverBoxWidth;
+  } else {
+    coverCenterY = coverBoxHeight / 2 - (coverBoxWidth * coverImage.aspectRatio) / 2;
+    coverX = pageRatio > coverImage.aspectRatio ? 0 : coverCenterX;
+    coverY = pageRatio > coverImage.aspectRatio ? coverCenterY : 0;
+    coverHeight = pageRatio > coverImage.aspectRatio ? coverBoxWidth * coverImage.aspectRatio : coverBoxHeight;
+  }
+
+  doc.saveGraphicsState();
+  doc.rect(coverBoxX, coverBoxY, coverBoxWidth, coverBoxHeight, null);
+  doc.clip();
+  doc.discardPath();
+  doc.addImage(coverImage.img, coverImage.format, coverX, coverY, coverWidth, coverHeight);
+  doc.restoreGraphicsState();
+
+  doc.setFontSize(80);
+  doc.setFont(fontFamily, "bold");
+  doc.setTextColor("white");
+
+  const textHeight = doc.getTextDimensions(`Calendario\n${options.year}`, {
+    maxWidth: pageSize.width - (margin * 2),
+  }).h;
+
+  doc.text(`Calendario\n${options.year}`, margin, pageSize.height - margin - textHeight, {
+    baseline: "top",
+  });
+
+  doc.addPage();
+}
+
 function setMonthImage(monthIndex: number) {
   const monthImage = options.images[monthIndex];
 
   if (!monthImage) {
     imagesBox.width = 0;
     imagesBox.height = 0;
-
     return;
   }
 
-  if (options.orientation === DocOrientation.LANDSCAPE) {
-    imagesBox.height = pageSize.height / 2.5;
+  imagesBox.width = pageSize.width;
+
+  if (options.orientation === DocOrientation.LANDSCAPE) imagesBox.height = pageSize.height / 2.5;
+  else imagesBox.height = pageSize.width / 1.6;
+
+  const widthGreater = monthImage.aspectRatio < 1;
+  let imageWidth = 0;
+  let imageHeight = 0;
+  let imageX = 0;
+  let imageY = 0;
+  let imageCenterX = 0;
+  let imageCenterY = 0;
+
+  if (widthGreater) {
+    imageCenterX = pageSize.width / 2 - (imagesBox.height / monthImage.aspectRatio) / 2;
+    imageX = imageCenterX;
+    imageY = 0;
+    imageWidth = imagesBox.height / monthImage.aspectRatio;
   } else {
-    imagesBox.height = pageSize.width / 1.6;
+    imageCenterY = imagesBox.height / 2 - (imagesBox.width * monthImage.aspectRatio) / 2;
+    imageX = 0;
+    imageY = imageCenterY;
+    imageHeight = imagesBox.width * monthImage.aspectRatio;
   }
 
-  const centerX = pageSize.width / 2;
-
-  imagesBox.x = centerX - (imagesBox.height / monthImage.aspectRatio) / 2;
-  imagesBox.width = imagesBox.height / monthImage.aspectRatio;
-
-  doc.addImage(monthImage.img, monthImage.format, imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height);
+  doc.saveGraphicsState();
+  doc.rect(imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height, null);
+  doc.clip();
+  doc.discardPath();
+  doc.addImage(monthImage.img, monthImage.format, imageX, imageY, imageWidth, imageHeight);
+  doc.restoreGraphicsState();
 
   /* debugBox(imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height); */
 }
@@ -382,6 +450,8 @@ export async function createAnualMultipage() {
 
   const calendar = generateCalendar(year);
   calendar.months = await setHolidays(year, calendar.months);
+
+  if (options.cover) setCoverPage();
 
   calendar.months.forEach((month, monthInd) => {
     if (monthInd > 0) doc.addPage();

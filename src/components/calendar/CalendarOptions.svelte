@@ -3,6 +3,7 @@
 	import { DocOrientation, DocSize } from '@/lib/enums';
 	import { createAnual, createAnualMultipage } from '@/lib/pdf/calendar';
 	import { bloburi, calendarOptions } from '@/lib/stores';
+	import loadImage from 'blueimp-load-image';
 	import Page from '@/lib/icons/Page.svelte';
 	import Pages from '@/lib/icons/Pages.svelte';
 	import ImageUploader from '@/components/ImageUploader.svelte';
@@ -10,7 +11,11 @@
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
 	$: printCalendar = $calendarOptions.multipage ? createAnualMultipage : createAnual;
-	$: calendarStyle = 'multipage';
+	$: calendarStyle = $calendarOptions.cover
+		? 'cover'
+		: $calendarOptions.multipage
+			? 'multipage'
+			: 'single';
 
 	$: if (calendarStyle === 'single') {
 		$calendarOptions.cover = false;
@@ -41,11 +46,20 @@
 				const dataUrl = ev.target?.result as string;
 				const img = new Image();
 
-				img.onload = () => {
+				img.onload = async () => {
 					const aspectRatio = img.height / img.width;
+					let { image } = await loadImage(file, {
+						canvas: true,
+						orientation: true,
+						maxWidth: 1440,
+						maxHeight: 1440,
+						upscale: false
+					});
+					const imgEl = new Image();
+					imgEl.src = image.toDataURL();
 
 					const monthImage = {
-						img,
+						img: imgEl,
 						format,
 						aspectRatio,
 						monthIndex: i

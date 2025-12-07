@@ -45,7 +45,7 @@
 
 		<div class="relative aspect-3/4 border border-neutral-300 bg-neutral-700">
 			<img
-				class="size-full object-cover"
+				class="aspect-3/4 size-full object-cover"
 				src={$calendarOptions.images[monthIndex]?.img.src}
 				alt="Imagen {monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}"
 			/>
