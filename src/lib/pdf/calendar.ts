@@ -7,38 +7,24 @@ import { jsPDF } from "jspdf";
 import { get } from "svelte/store";
 import { bloburi, calendarOptions } from "@/lib/stores";
 import { generateCalendar, splitArray } from "@/lib/utils";
-import { DocOrientation, DocSize, WEEKDAYS_NAMES } from "@/lib/enums";
-import { fontSizeA3, fontSizeA4 } from "@/lib/consts";
-
-const apiUrl = (year: number | string) => `https://date.nager.at/api/v3/PublicHolidays/${year}/es`;
-const margin = 7;
-const gap = 5;
-const innerMargin = 3;
-const titleHeight = 20;
-// const weekDaysHeight = 10; TODO: make this work
-
-const fontFamily = "inter";
-const baseColor = "black";
-const weekDaysColor = "gray";
-const holidayColor = "red";
-const outlineColor = "gray";
-const outlineWidth = 0.1;
-
-const dayCols = 7;
-let dayRows = 8;
+import { DocOrientation, WEEKDAYS_NAMES } from "@/lib/enums";
+import { fontSize as fontConsts, spacing, fontStyle, apiHolidays } from "@/lib/consts";
 
 let doc: jsPDF;
 let options: CalendarOptions;
+let dayRows = 8;
+const dayCols = 7;
 
 const fontSize = {
-  title: fontSizeA4.title,
-  weekDays: fontSizeA4.weekDays,
-  base: fontSizeA4.base,
-  holiday: fontSizeA4.holiday
+  cover: 0,
+  title: 0,
+  weekDays: 0,
+  base: 0,
+  holiday: 0
 }
 
 const pageSize = { width: 0, height: 0 };
-const imagesBox = { x: 0, y: 0, width: 0, height: 0 };
+const imageBox = { x: 0, y: 0, width: 0, height: 0 };
 const titleBox = { x: 0, y: 0, width: 0, height: 0 };
 const calendarBox = { x: 0, y: 0, width: 0, height: 0 };
 const monthGrid = { cols: 3, rows: 4, gapX: 0, gapY: 0 };
@@ -60,7 +46,7 @@ function setBase() {
     title: "Weprintpdf",
   });
 
-  doc.setFont(fontFamily, "normal");
+  doc.setFont(fontStyle.fontFamily, "normal");
 
   pageSize.width = doc.internal.pageSize.getWidth();
   pageSize.height = doc.internal.pageSize.getHeight();
@@ -69,23 +55,23 @@ function setBase() {
 }
 
 function setFontSize() {
-  if (options.size === DocSize.A4) {
-    fontSize.title = fontSizeA4.title;
-    fontSize.weekDays = options.multipage ? fontSizeA4.weekDaysMultipage : fontSizeA4.weekDays;
-    fontSize.base = options.multipage ? fontSizeA4.baseMultipage : fontSizeA4.base;
-    fontSize.holiday = fontSizeA4.holiday;
-  } else if (options.size === DocSize.A3) {
-    fontSize.title = fontSizeA3.title;
-    fontSize.weekDays = options.multipage ? fontSizeA3.weekDaysMultipage : fontSizeA3.weekDays;
-    fontSize.base = options.multipage ? fontSizeA3.baseMultipage : fontSizeA3.base;
-    fontSize.holiday = fontSizeA3.holiday;
+  fontSize.cover = fontConsts[options.size].cover;
+  fontSize.title = fontConsts[options.size].title;
+  fontSize.holiday = fontConsts[options.size].holiday;
+
+  if (options.multipage) {
+    fontSize.weekDays = fontConsts[options.size].weekDaysMultipage;
+    fontSize.base = fontConsts[options.size].baseMultipage;
+  } else {
+    fontSize.weekDays = fontConsts[options.size].weekDays;
+    fontSize.base = fontConsts[options.size].base;
   }
 }
 
 async function setHolidays(year: number, months: CalendarMonth[]) {
   if (options.holidays) {
     try {
-      const req = await fetch(apiUrl(year));
+      const req = await fetch(apiHolidays(year));
       if (!req.ok) throw new Error("Data not found");
 
       const holidays = await req.json();
@@ -121,8 +107,8 @@ async function setHolidays(year: number, months: CalendarMonth[]) {
 }
 
 function debugBox(x: number, y: number, width: number, height: number) {
-  doc.setDrawColor(holidayColor);
-  doc.setLineWidth(outlineWidth);
+  doc.setDrawColor(fontStyle.holidayColor);
+  doc.setLineWidth(fontStyle.outlineWidth);
   doc.rect(x, y, width, height);
 };
 
@@ -130,48 +116,37 @@ function setCoverPage() {
   const coverImage = options.images[12];
   if (!coverImage) return;
 
-  const coverBoxX = 0;
-  const coverBoxY = 0;
-  const coverBoxWidth = pageSize.width;
-  const coverBoxHeight = pageSize.height;
-  const widthGreater = coverImage.aspectRatio < 1;
-  const pageRatio = pageSize.width / pageSize.height;
-
-  let coverX = 0;
-  let coverY = 0;
-  let coverWidth = 0;
-  let coverHeight = 0;
-  let coverCenterX = 0;
-  let coverCenterY = 0;
-
-  if (widthGreater) {
-    coverCenterX = coverBoxWidth / 2 - (coverBoxHeight / coverImage.aspectRatio) / 2;
-    coverX = pageRatio > coverImage.aspectRatio ? coverCenterX : 0;
-    coverY = pageRatio > coverImage.aspectRatio ? 0 : coverCenterY;
-    coverWidth = pageRatio > coverImage.aspectRatio ? coverBoxHeight / coverImage.aspectRatio : coverBoxWidth;
-  } else {
-    coverCenterY = coverBoxHeight / 2 - (coverBoxWidth * coverImage.aspectRatio) / 2;
-    coverX = pageRatio > coverImage.aspectRatio ? 0 : coverCenterX;
-    coverY = pageRatio > coverImage.aspectRatio ? coverCenterY : 0;
-    coverHeight = pageRatio > coverImage.aspectRatio ? coverBoxWidth * coverImage.aspectRatio : coverBoxHeight;
+  const coverBox = {
+    x: 0,
+    y: 0,
+    width: pageSize.width,
+    height: pageSize.height
   }
 
+  const scaleX = coverBox.width / coverImage.img.width;
+  const scaleY = coverBox.height / coverImage.img.height;
+  const scale = Math.max(scaleX, scaleY);
+  const scaledW = coverImage.img.width * scale;
+  const scaledH = coverImage.img.height * scale;
+  const offsetX = (coverBox.width - scaledW) / 2;
+  const offsetY = (coverBox.height - scaledH) / 2;
+
   doc.saveGraphicsState();
-  doc.rect(coverBoxX, coverBoxY, coverBoxWidth, coverBoxHeight, null);
+  doc.rect(coverBox.x, coverBox.y, coverBox.width, coverBox.height, null);
   doc.clip();
   doc.discardPath();
-  doc.addImage(coverImage.img, coverImage.format, coverX, coverY, coverWidth, coverHeight);
+  doc.addImage(coverImage.img, coverImage.format, offsetX, offsetY, scaledW, scaledH);
   doc.restoreGraphicsState();
 
-  doc.setFontSize(80);
-  doc.setFont(fontFamily, "bold");
+  doc.setFontSize(fontSize.cover);
+  doc.setFont(fontStyle.fontFamily, "bold");
   doc.setTextColor("white");
 
   const textHeight = doc.getTextDimensions(`Calendario\n${options.year}`, {
-    maxWidth: pageSize.width - (margin * 2),
+    maxWidth: pageSize.width - (spacing[options.size].margin * 2),
   }).h;
 
-  doc.text(`Calendario\n${options.year}`, margin, pageSize.height - margin - textHeight, {
+  doc.text(`Calendario\n${options.year}`, spacing[options.size].margin, pageSize.height - spacing[options.size].margin - textHeight, {
     baseline: "top",
   });
 
@@ -182,58 +157,46 @@ function setMonthImage(monthIndex: number) {
   const monthImage = options.images[monthIndex];
 
   if (!monthImage) {
-    imagesBox.width = 0;
-    imagesBox.height = 0;
+    imageBox.width = 0;
+    imageBox.height = 0;
     return;
   }
 
-  imagesBox.width = pageSize.width;
+  imageBox.width = pageSize.width;
 
-  if (options.orientation === DocOrientation.LANDSCAPE) imagesBox.height = pageSize.height / 2.5;
-  else imagesBox.height = pageSize.width / 1.6;
+  if (options.orientation === DocOrientation.LANDSCAPE) imageBox.height = pageSize.height / 2.5;
+  else imageBox.height = pageSize.width / 1.6;
 
-  const widthGreater = monthImage.aspectRatio < 1;
-  let imageWidth = 0;
-  let imageHeight = 0;
-  let imageX = 0;
-  let imageY = 0;
-  let imageCenterX = 0;
-  let imageCenterY = 0;
-
-  if (widthGreater) {
-    imageCenterX = pageSize.width / 2 - (imagesBox.height / monthImage.aspectRatio) / 2;
-    imageX = imageCenterX;
-    imageY = 0;
-    imageWidth = imagesBox.height / monthImage.aspectRatio;
-  } else {
-    imageCenterY = imagesBox.height / 2 - (imagesBox.width * monthImage.aspectRatio) / 2;
-    imageX = 0;
-    imageY = imageCenterY;
-    imageHeight = imagesBox.width * monthImage.aspectRatio;
-  }
+  const scaleX = imageBox.width / monthImage.img.width;
+  const scaleY = imageBox.height / monthImage.img.height;
+  const scale = Math.max(scaleX, scaleY);
+  const scaledW = monthImage.img.width * scale;
+  const scaledH = monthImage.img.height * scale;
+  const offsetX = (imageBox.width - scaledW) / 2;
+  const offsetY = (imageBox.height - scaledH) / 2;
 
   doc.saveGraphicsState();
-  doc.rect(imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height, null);
+  doc.rect(imageBox.x, imageBox.y, imageBox.width, imageBox.height, null);
   doc.clip();
   doc.discardPath();
-  doc.addImage(monthImage.img, monthImage.format, imageX, imageY, imageWidth, imageHeight);
+  doc.addImage(monthImage.img, monthImage.format, offsetX, offsetY, scaledW, scaledH);
   doc.restoreGraphicsState();
 
-  /* debugBox(imagesBox.x, imagesBox.y, imagesBox.width, imagesBox.height); */
+  /* debugBox(imageBox.x, imageBox.y, imageBox.width, imageBox.height); */
 }
 
 function setTitle(title: string) {
-  titleBox.x = margin;
-  titleBox.y = imagesBox.height;
-  titleBox.width = pageSize.width - (margin * 2);
-  titleBox.height = titleHeight;
+  titleBox.x = spacing[options.size].margin;
+  titleBox.y = imageBox.height;
+  titleBox.width = pageSize.width - (spacing[options.size].margin * 2);
+  titleBox.height = spacing[options.size].titleHeight;
 
   const titleBoxCenterX = titleBox.width / 2 + titleBox.x;
   const titleBoxCenterY = titleBox.height / 2 + titleBox.y;
 
   doc.setFontSize(fontSize.title)
-    .setTextColor(baseColor)
-    .setFont(fontFamily, "bold");
+    .setTextColor(fontStyle.baseColor)
+    .setFont(fontStyle.fontFamily, "bold");
 
   if (options.multipage) {
     doc.text(title, titleBoxCenterX, titleBox.y + titleBox.height, {
@@ -251,10 +214,10 @@ function setTitle(title: string) {
 }
 
 function setCalendarBox() {
-  calendarBox.x = margin;
-  calendarBox.y = titleBox.height + imagesBox.height + margin;
-  calendarBox.width = pageSize.width - (margin * 2);
-  calendarBox.height = pageSize.height - titleBox.height - imagesBox.height - (margin * 2);
+  calendarBox.x = spacing[options.size].margin;
+  calendarBox.y = titleBox.height + imageBox.height + spacing[options.size].margin;
+  calendarBox.width = pageSize.width - (spacing[options.size].margin * 2);
+  calendarBox.height = pageSize.height - titleBox.height - imageBox.height - (spacing[options.size].margin * 2);
 
   /* debugBox(calendarBox.x, calendarBox.y, calendarBox.width, calendarBox.height); */
 }
@@ -270,8 +233,8 @@ function setMonthsGrid() {
 
   const gapsOnX = monthGrid.cols - 1;
   const gapsOnY = monthGrid.rows - 1;
-  monthGrid.gapX = (gap * gapsOnX) / monthGrid.cols;
-  monthGrid.gapY = (gap * gapsOnY) / monthGrid.rows;
+  monthGrid.gapX = (spacing[options.size].gap * gapsOnX) / monthGrid.cols;
+  monthGrid.gapY = (spacing[options.size].gap * gapsOnY) / monthGrid.rows;
 }
 
 function setMonthBox() {
@@ -287,15 +250,15 @@ function setMonthBox() {
 function setMonths(splittedMonths: CalendarMonth[][]) {
   splittedMonths.forEach((chunk, chunkInd) => {
     chunk.forEach((month, monthInd) => {
-      const monthX = calendarBox.x + (monthInd * monthBox.width) + (monthInd < 1 ? 0 : gap * monthInd);
-      const monthY = calendarBox.y + (chunkInd * monthBox.height) + (chunkInd < 1 ? 0 : gap * chunkInd);
+      const monthX = calendarBox.x + (monthInd * monthBox.width) + (monthInd < 1 ? 0 : spacing[options.size].gap * monthInd);
+      const monthY = calendarBox.y + (chunkInd * monthBox.height) + (chunkInd < 1 ? 0 : spacing[options.size].gap * chunkInd);
 
       const monthCenterX = monthX + monthBox.width / 2;
       const monthCenterY = monthY + dayBox.height / 2;
 
       doc.setFontSize(fontSize.base)
-        .setTextColor(baseColor)
-        .setFont(fontFamily, "normal");
+        .setTextColor(fontStyle.baseColor)
+        .setFont(fontStyle.fontFamily, "normal");
 
       doc.text(month.name, monthCenterX, monthCenterY, {
         baseline: "middle",
@@ -319,11 +282,11 @@ function setWeekDays(monthX: number, monthY: number) {
     /* debugBox(weekdayX, weekdayY, dayBox.width, dayBox.height); */
 
     doc.setFontSize(fontSize.weekDays)
-      .setTextColor(weekDaysColor)
-      .setFont(fontFamily, "normal");
+      .setTextColor(fontStyle.weekDaysColor)
+      .setFont(fontStyle.fontFamily, "normal");
 
     if (options.multipage) {
-      doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayY + dayBox.height - margin, {
+      doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayY + dayBox.height - spacing[options.size].margin, {
         baseline: "bottom",
         align: "center"
       })
@@ -370,42 +333,42 @@ function setDays(week: CalendarWeek, weekX: number, weekY: number) {
 
 
     if (day && day.day) {
-      doc.setDrawColor(outlineColor);
-      doc.setLineWidth(outlineWidth);
+      doc.setDrawColor(fontStyle.outlineColor);
+      doc.setLineWidth(fontStyle.outlineWidth);
       doc.rect(dayX, dayY, dayBox.width, dayBox.height, "D");
 
       const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
 
       if (options.sundays && isSunday || options.holidays && day.holiday) {
         doc.setFontSize(fontSize.base)
-          .setTextColor(holidayColor)
-          .setFont(fontFamily, "bold");
+          .setTextColor(fontStyle.holidayColor)
+          .setFont(fontStyle.fontFamily, "bold");
       } else {
         doc.setFontSize(fontSize.base)
-          .setTextColor(baseColor)
-          .setFont(fontFamily, "normal");
+          .setTextColor(fontStyle.baseColor)
+          .setFont(fontStyle.fontFamily, "normal");
       }
 
       if (options.multipage && options.labelHolidays) {
-        doc.text(`${day.day}`, dayX + dayBox.width - innerMargin, dayY + innerMargin, {
+        doc.text(`${day.day}`, dayX + dayBox.width - spacing[options.size].innerMargin, dayY + spacing[options.size].innerMargin, {
           baseline: "top",
           align: "right"
         });
 
         if (day.holiday) {
           doc.setFontSize(fontSize.holiday)
-            .setTextColor(weekDaysColor)
-            .setFont(fontFamily, "normal");
+            .setTextColor(fontStyle.weekDaysColor)
+            .setFont(fontStyle.fontFamily, "normal");
 
           const textHeight = doc.getTextDimensions(`${day.holidayName}`, {
-            maxWidth: dayBox.width - (innerMargin * 2),
+            maxWidth: dayBox.width - (spacing[options.size].innerMargin * 2),
           }).h;
 
 
-          doc.text(`${day.holidayName}`, dayX + dayBox.width - innerMargin, dayY + dayBox.height - innerMargin - textHeight, {
+          doc.text(`${day.holidayName}`, dayX + dayBox.width - spacing[options.size].innerMargin, dayY + dayBox.height - spacing[options.size].innerMargin - textHeight, {
             baseline: "top",
             align: "right",
-            maxWidth: dayBox.width - (innerMargin * 2),
+            maxWidth: dayBox.width - (spacing[options.size].innerMargin * 2),
           });
         }
       } else {
@@ -462,8 +425,8 @@ export async function createAnualMultipage() {
     setMonthBox();
     setDayBox();
 
-    setWeekDays(margin, calendarBox.y);
-    setWeeks(month, margin, calendarBox.y);
+    setWeekDays(spacing[options.size].margin, calendarBox.y);
+    setWeeks(month, spacing[options.size].margin, calendarBox.y);
   })
 
 

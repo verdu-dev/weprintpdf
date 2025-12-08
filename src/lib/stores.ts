@@ -10,8 +10,8 @@ export const calendarOptions: Writable<CalendarOptions> = writable({
   size: DocSize.A4,
   orientation: DocOrientation.PORTRAIT,
   sundays: true,
-  multipage: true,
-  cover: true,
+  multipage: false,
+  cover: false,
   holidays: true,
   labelHolidays: false,
   images: []

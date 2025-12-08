@@ -230,7 +230,7 @@
 		{/if}
 
 		{#if $calendarOptions.multipage}
-			<details class="flex w-full flex-col gap-1" open>
+			<details class="flex w-full flex-col gap-1">
 				<summary class="text-sm font-medium">Imagenes</summary>
 
 				<div class="grid grid-cols-3 gap-2">
