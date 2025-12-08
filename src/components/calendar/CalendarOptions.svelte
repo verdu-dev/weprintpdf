@@ -93,14 +93,14 @@
 </script>
 
 <aside
-	class="flex flex-col gap-4 overflow-y-auto border border-neutral-300 bg-brown-50 p-6 scrollbar-none"
+	class="flex flex-col gap-4 overflow-y-auto border border-neutral-300 bg-brown-50 p-6 scrollbar-none dark:border-neutral-700 dark:bg-neutral-900"
 >
 	<form class="contents" on:submit|preventDefault={printCalendar}>
 		<label class="flex flex-col gap-1">
 			<p class="text-sm font-medium">Año</p>
 
 			<input
-				class="w-full bg-brown-200 px-3 py-2 text-lg outline-none"
+				class="w-full bg-brown-200 px-3 py-2 text-lg outline-none dark:bg-brown-900"
 				type="number"
 				list="years"
 				maxlength="4"
@@ -119,7 +119,7 @@
 				<p class="text-sm font-medium">Tamaño</p>
 
 				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg uppercase outline-none"
+					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg uppercase outline-none dark:bg-brown-900"
 					bind:value={$calendarOptions.size}
 				>
 					{#each Object.values(DocSize) as value}
@@ -132,7 +132,7 @@
 				<p class="text-sm font-medium">Orientación</p>
 
 				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none dark:bg-brown-900"
 					bind:value={$calendarOptions.orientation}
 				>
 					{#each Object.values(DocOrientation) as value}
@@ -147,7 +147,7 @@
 			<div class="grid grid-cols-3 gap-4">
 				<label
 					class:bg-brown-400={calendarStyle === 'single'}
-					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2"
+					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
 				>
 					<Page class="size-6" />
 					<p class="text-sm font-medium">1 Página</p>
@@ -157,7 +157,7 @@
 
 				<label
 					class:bg-brown-400={calendarStyle === 'multipage'}
-					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2"
+					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
 				>
 					<Pages class="size-6" />
 					<p class="text-sm font-medium">12 Páginas</p>
@@ -167,7 +167,7 @@
 
 				<label
 					class:bg-brown-400={calendarStyle === 'cover'}
-					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2"
+					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
 				>
 					<Pages class="size-6" />
 					<p class="text-sm font-medium">13 Páginas</p>
@@ -181,7 +181,7 @@
 			<p class="text-sm font-medium">Multipágina</p>
 
 			<select
-				class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+				class="w-full appearance-none bg-brown-200 dark:bg-brown-900 px-3 py-2 text-lg outline-none"
 				bind:value={$calendarOptions.multipage}
 			>
 				<option value={true}>Si</option>
@@ -194,7 +194,7 @@
 				<p class="text-sm font-medium">Marcar domingos</p>
 
 				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+					class="w-full appearance-none bg-brown-200 dark:bg-brown-900 px-3 py-2 text-lg outline-none"
 					bind:value={$calendarOptions.sundays}
 				>
 					<option value={true}>Si</option>
@@ -206,7 +206,7 @@
 				<p class="text-sm font-medium">Marcar festivos</p>
 
 				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+					class="w-full appearance-none bg-brown-200 dark:bg-brown-900 px-3 py-2 text-lg outline-none"
 					bind:value={$calendarOptions.holidays}
 				>
 					<option value={true}>Si</option>
@@ -220,7 +220,7 @@
 				<p class="text-sm font-medium">Etiquetar festivos</p>
 
 				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none"
+					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none dark:bg-brown-900"
 					bind:value={$calendarOptions.labelHolidays}
 				>
 					<option value={true}>Si</option>
@@ -246,7 +246,7 @@
 		{/if}
 
 		<button
-			class="mt-4 cursor-pointer bg-neutral-900 px-4 py-2 text-neutral-100"
+			class="mt-4 cursor-pointer bg-neutral-900 px-4 py-2 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
 			type="button"
 			on:click={downloadPDF}
 		>

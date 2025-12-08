@@ -34,7 +34,9 @@
 			bind:files={images[monthIndex]}
 		/>
 
-		<div class="flex aspect-3/4 flex-col items-center justify-center gap-4 bg-brown-200 p-2">
+		<div
+			class="flex aspect-3/4 flex-col items-center justify-center gap-4 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
+		>
 			<Images class="size-5" />
 			<p class="text-center text-xs leading-none font-medium">Añadir imagen</p>
 		</div>
@@ -43,14 +45,14 @@
 	<div class="flex flex-col gap-1">
 		<p class="text-sm font-medium">{monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}</p>
 
-		<div class="relative aspect-3/4 border border-neutral-300 bg-neutral-700">
+		<div class="relative aspect-3/4 border border-neutral-300 dark:border-neutral-700">
 			<img
 				class="aspect-3/4 size-full object-cover"
 				src={$calendarOptions.images[monthIndex]?.img.src}
 				alt="Imagen {monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}"
 			/>
 			<button
-				class="absolute bottom-0 flex w-full cursor-pointer justify-center bg-brown-200/50 p-1"
+				class="absolute bottom-0 flex w-full cursor-pointer justify-center bg-brown-50/70 p-1 dark:bg-brown-950/70"
 				on:click={() => removeImage(monthIndex)}
 			>
 				<Trash class="size-6" />
