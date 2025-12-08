@@ -10,7 +10,9 @@
 	}
 </script>
 
-<header class="flex border-b border-neutral-300 p-3 dark:border-neutral-700">
+<header
+	class="sticky top-0 z-40 flex border-b border-neutral-300 bg-brown-50 p-3 dark:border-neutral-700 dark:bg-neutral-900"
+>
 	<div class="mx-auto flex w-full max-w-[1600px] items-center justify-between px-16">
 		<a href="/">
 			<Logo class="h-10" />

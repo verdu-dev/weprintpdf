@@ -25,13 +25,17 @@
 <Header />
 
 <div class="mx-auto grid w-full max-w-[1600px] flex-1 grid-cols-[50px_1fr_50px]">
-	<aside class="h-full border-x border-neutral-300 bg-circles dark:border-neutral-700"></aside>
+	<aside
+		class="relative z-20 h-full border-x border-neutral-300 bg-brown-50 bg-circles dark:border-neutral-700 dark:bg-neutral-900"
+	></aside>
 
-	<div class="flex flex-col bg-diagonals">
+	<div class="flex flex-col bg-diagonals pb-24">
 		{@render children()}
 	</div>
 
-	<aside class="h-full border-x border-neutral-300 bg-circles dark:border-neutral-700"></aside>
+	<aside
+		class="relative z-20 h-full border-x border-neutral-300 bg-brown-50 bg-circles dark:border-neutral-700 dark:bg-neutral-900"
+	></aside>
 </div>
 
 <Footer />
