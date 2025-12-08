@@ -1,5 +1,7 @@
+import type jsPDF from "jspdf";
 import type { CalendarDay, CalendarMonth, CalendarYear } from "@/lib/types";
 import { MONTH_NAMES } from "@/lib/enums";
+import { fontStyle } from "@/lib/consts";
 
 export function isLeap(year: string | number) {
   return (+year % 4 === 0) && (+year % 100 !== 0 || +year % 400 === 0);
@@ -67,3 +69,9 @@ export function splitArray<T>(arr: Array<T>, chunkSize: number) {
     arr.slice(i * chunkSize, i * chunkSize + chunkSize)
   );
 }
+
+export function debugBox(doc: jsPDF, x: number, y: number, width: number, height: number) {
+  doc.setDrawColor(fontStyle.holidayColor);
+  doc.setLineWidth(fontStyle.outlineWidth);
+  doc.rect(x, y, width, height);
+};

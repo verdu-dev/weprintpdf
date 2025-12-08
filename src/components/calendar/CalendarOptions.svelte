@@ -2,15 +2,14 @@
 	import { onMount } from 'svelte';
 	import { DocOrientation, DocSize } from '@/lib/enums';
 	import { createAnual, createAnualMultipage } from '@/lib/pdf/calendar';
-	import { bloburi, calendarOptions } from '@/lib/stores';
+	import { bloburi, calendarOptions, availableHolidays } from '@/lib/stores';
+
 	import loadImage from 'blueimp-load-image';
 	import Page from '@/lib/icons/Page.svelte';
 	import Pages from '@/lib/icons/Pages.svelte';
 	import ImageUploader from '@/components/ImageUploader.svelte';
-	import Button from '../Button.svelte';
-	import OutlineRow from '../OutlineRow.svelte';
-
-	const allYears = Array.from({ length: 10000 }, (_, i) => i);
+	import Button from '@/components/Button.svelte';
+	import OutlineRow from '@/components/OutlineRow.svelte';
 
 	$: printCalendar = $calendarOptions.multipage ? createAnualMultipage : createAnual;
 	$: calendarStyle = $calendarOptions.cover
@@ -50,6 +49,7 @@
 
 				img.onload = async () => {
 					const aspectRatio = img.height / img.width;
+
 					let { image } = await loadImage(file, {
 						canvas: true,
 						orientation: true,
@@ -57,6 +57,7 @@
 						maxHeight: 1440,
 						upscale: false
 					});
+
 					const imgEl = new Image();
 					imgEl.src = image.toDataURL();
 
@@ -77,8 +78,8 @@
 		}
 	}
 
-	onMount(printCalendar);
-	$: ($calendarOptions, printCalendar());
+	onMount(() => printCalendar());
+	$: if ($calendarOptions) printCalendar();
 
 	function removeImage(monthIndex: number) {
 		$calendarOptions.images[monthIndex] = null;
@@ -92,6 +93,18 @@
 		link.download = `calendario-${$calendarOptions.year}.pdf`;
 		link.click();
 	}
+
+	function incYear() {
+		const yearNum = Number($calendarOptions.year);
+		const yearInc = yearNum + 1;
+		$calendarOptions.year = yearInc.toString();
+	}
+
+	function decYear() {
+		const yearNum = Number($calendarOptions.year);
+		const yearDec = yearNum + 1;
+		$calendarOptions.year = yearDec.toString();
+	}
 </script>
 
 <aside
@@ -104,35 +117,23 @@
 		<label class="flex flex-col gap-1">
 			<p class="px-8 text-sm font-medium">Año</p>
 
-			<OutlineRow className="px-4 grid grid-cols-[1fr_auto_auto] gap-2">
+			<OutlineRow className="px-4 gap-2 flex">
+				<Button className="grow" type="button" onclick={decYear}>-</Button>
+
 				<input
-					class="rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-neutral-700"
-					type="number"
-					list="years"
+					class="w-1/2 rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-neutral-700"
+					type="text"
+					inputmode="numeric"
 					maxlength="4"
 					bind:value={$calendarOptions.year}
 				/>
 
-				<Button
-					className="rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-brown-900"
-					type="button"
-				>
-					- 1
-				</Button>
-
-				<Button
-					className="rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-brown-900"
-					type="button"
-				>
-					+ 1
-				</Button>
-
-				<datalist id="years">
-					{#each allYears as year}
-						<option value={year}>{year}</option>
-					{/each}
-				</datalist>
+				<Button className="grow" type="button" onclick={incYear}>+</Button>
 			</OutlineRow>
+
+			{#if !$availableHolidays}
+				<p class="px-8 text-xs text-red-500">No hay fesitvos disponibles para este año</p>
+			{/if}
 		</label>
 
 		<div class="grid grid-cols-2 gap-4">

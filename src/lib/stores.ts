@@ -5,6 +5,7 @@ import { DocOrientation, DocSize } from "@/lib/enums";
 
 export const searchTerm: Writable<string> = writable("");
 export const bloburi: Writable<string> = writable("");
+export const availableHolidays: Writable<boolean> = writable(true);
 
 export const calendarOptions: Writable<CalendarOptions> = writable({
   year: CURRENT_YEAR,

@@ -1,8 +1,8 @@
-import { calendarOptions } from '@/lib/stores';
 import type { LayoutLoad } from './$types';
+import { calendarOptions } from '@/lib/stores';
 import { error } from '@sveltejs/kit';
 
-export const load: LayoutLoad = async ({ params }) => {
+export const load: LayoutLoad = async ({ params, fetch }) => {
   const { year } = params;
   if (!year) return;
 

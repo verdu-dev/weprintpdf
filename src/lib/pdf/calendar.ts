@@ -5,7 +5,7 @@ import "@/lib/assets/fonts/inter-bold";
 
 import { jsPDF } from "jspdf";
 import { get } from "svelte/store";
-import { bloburi, calendarOptions } from "@/lib/stores";
+import { availableHolidays, bloburi, calendarOptions } from "@/lib/stores";
 import { generateCalendar, splitArray } from "@/lib/utils";
 import { DocOrientation, WEEKDAYS_NAMES } from "@/lib/enums";
 import { fontSize as fontConsts, spacing, fontStyle, apiHolidays } from "@/lib/consts";
@@ -69,48 +69,39 @@ function setFontSize() {
 }
 
 async function setHolidays(year: number, months: CalendarMonth[]) {
-  if (options.holidays) {
-    try {
-      const req = await fetch(apiHolidays(year));
-      if (!req.ok) throw new Error("Data not found");
+  try {
+    const req = await fetch(apiHolidays(year));
+    if (!req.ok) throw new Error("Data not found");
 
-      const holidays = await req.json();
+    const holidays = await req.json();
+    availableHolidays.set(true);
 
-      return months.map((month: CalendarMonth) => {
-        month.weeks.map((week: CalendarWeek) => {
-          week.map((day: CalendarDay | null) => {
-            if (day) {
-              const findHoliday = holidays.find((holiday: Holiday) => holiday.date === day.iso);
+    return months.map((month: CalendarMonth) => {
+      month.weeks.map((week: CalendarWeek) => {
+        week.map((day: CalendarDay | null) => {
+          if (day) {
+            const findHoliday = holidays.find((holiday: Holiday) => holiday.date === day.iso);
 
-              if (findHoliday) {
-                day.holiday = true;
-                day.holidayName = findHoliday.localName;
-              }
+            if (findHoliday) {
+              day.holiday = true;
+              day.holidayName = findHoliday.localName;
             }
+          }
 
-            return day;
-          });
-
-          return week;
+          return day;
         });
 
-        return month;
+        return week;
       });
-    } catch (error) {
-      console.log(error);
-      calendarOptions.update((options) => ({ ...options, holidays: false, labelHolidays: false }));
-      alert("No se han encontrado datos de fiestas");
-    }
+
+      return month;
+    });
+  } catch (err) {
+    console.log(err);
+    availableHolidays.set(false);
+    return months;
   }
-
-  return months;
 }
-
-function debugBox(x: number, y: number, width: number, height: number) {
-  doc.setDrawColor(fontStyle.holidayColor);
-  doc.setLineWidth(fontStyle.outlineWidth);
-  doc.rect(x, y, width, height);
-};
 
 function setCoverPage() {
   const coverImage = options.images[12];
