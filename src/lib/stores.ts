@@ -3,6 +3,7 @@ import { type Writable, writable } from "svelte/store";
 import { CURRENT_YEAR } from "@/lib/consts";
 import { DocOrientation, DocSize } from "@/lib/enums";
 
+export const searchTerm: Writable<string> = writable("");
 export const bloburi: Writable<string> = writable("");
 
 export const calendarOptions: Writable<CalendarOptions> = writable({

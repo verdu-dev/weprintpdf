@@ -24,7 +24,7 @@
 
 <Header />
 
-<div class="mx-auto grid w-full max-w-[1600px] flex-1 grid-cols-[50px_1fr_50px]">
+<div class="mx-auto grid w-full max-w-[1600px] flex-1 grid-cols-[45px_1fr_45px]">
 	<aside
 		class="relative z-20 h-full border-x border-neutral-300 bg-brown-50 bg-circles dark:border-neutral-700 dark:bg-neutral-900"
 	></aside>

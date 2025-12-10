@@ -18,7 +18,7 @@
 		class={`
 			relative flex h-full flex-col gap-2 bg-brown-50 p-4 transition-colors squircle
 		hover:bg-neutral-200 
-		dark:bg-neutral-900 dark:hover:bg-neutral-800/50
+		dark:bg-neutral-900 dark:hover:bg-neutral-800
 		`}
 	>
 		{#if isNew}

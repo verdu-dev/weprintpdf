@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
 	import OutlineRow from '@/components/OutlineRow.svelte';
 	import { TypeWriter } from 'svelte-typewrite';
+	import { searchTerm } from '@/lib/stores';
 
 	const words = ['calendarios', 'agendas', 'listas', 'perpétuos'];
 </script>
@@ -31,6 +32,7 @@
 				class="w-full max-w-sm rounded-full bg-neutral-300 px-4 py-2.5 dark:bg-neutral-700"
 				type="text"
 				placeholder="Calendario anual..."
+				bind:value={$searchTerm}
 			/>
 			<button class="rounded-full bg-neutral-950 px-6 py-2.5 text-neutral-50">Buscar</button>
 		</OutlineRow>
