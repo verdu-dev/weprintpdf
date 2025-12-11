@@ -7,6 +7,7 @@
 	import Page from '@/lib/icons/Page.svelte';
 	import Pages from '@/lib/icons/Pages.svelte';
 	import ImageUploader from '@/components/ImageUploader.svelte';
+	import Button from '../Button.svelte';
 
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
@@ -177,44 +178,6 @@
 			</div>
 		</div>
 
-		<!-- <label class="flex flex-col gap-1">
-			<p class="text-sm font-medium">Multipágina</p>
-
-			<select
-				class="w-full appearance-none bg-brown-200 dark:bg-brown-900 px-3 py-2 text-lg outline-none"
-				bind:value={$calendarOptions.multipage}
-			>
-				<option value={true}>Si</option>
-				<option value={false}>No</option>
-			</select>
-		</label>
-
-		<div class="grid grid-cols-2 gap-4">
-			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Marcar domingos</p>
-
-				<select
-					class="w-full appearance-none bg-brown-200 dark:bg-brown-900 px-3 py-2 text-lg outline-none"
-					bind:value={$calendarOptions.sundays}
-				>
-					<option value={true}>Si</option>
-					<option value={false}>No</option>
-				</select>
-			</label>
-
-			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Marcar festivos</p>
-
-				<select
-					class="w-full appearance-none bg-brown-200 dark:bg-brown-900 px-3 py-2 text-lg outline-none"
-					bind:value={$calendarOptions.holidays}
-				>
-					<option value={true}>Si</option>
-					<option value={false}>No</option>
-				</select>
-			</label>
-		</div> -->
-
 		{#if $calendarOptions.holidays && $calendarOptions.multipage}
 			<label class="flex flex-col gap-1">
 				<p class="text-sm font-medium">Etiquetar festivos</p>
@@ -245,12 +208,6 @@
 			</details>
 		{/if}
 
-		<button
-			class="mt-4 cursor-pointer bg-neutral-900 px-4 py-2 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
-			type="button"
-			on:click={downloadPDF}
-		>
-			Descargar PDF
-		</button>
+		<Button className="mt-4" type="button" onclick={downloadPDF}>Descargar PDF</Button>
 	</form>
 </aside>
