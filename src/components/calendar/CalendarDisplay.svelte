@@ -16,17 +16,21 @@
 </script>
 
 <article
-	class="relative flex items-center justify-center overflow-clip rounded-3xl border-8 border-pdf bg-pdf text-neutral-600 squircle"
+	class="rounded-2xl border border-neutral-300 bg-brown-50 p-1.5 text-neutral-600 squircle dark:border-neutral-700 dark:bg-neutral-900"
 >
-	<p>Cargando pdf</p>
+	<div
+		class="relative flex size-full items-center justify-center overflow-clip rounded-xl border border-neutral-300 bg-pdf squircle dark:border-neutral-700"
+	>
+		<p>Cargando pdf</p>
 
-	{#if $bloburi}
-		<iframe
-			class="absolute inset-0 size-full border-none"
-			class:opacity-0={isLoading}
-			title="Vista previa del calendario"
-			{src}
-		>
-		</iframe>
-	{/if}
+		{#if $bloburi}
+			<iframe
+				class="dark:border-pdf-dark dark:bg-pdf-dark absolute inset-0 size-full border-8 border-pdf"
+				class:opacity-0={isLoading}
+				title="Vista previa del calendario"
+				{src}
+			>
+			</iframe>
+		{/if}
+	</div>
 </article>

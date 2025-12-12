@@ -1,19 +1,29 @@
 <script lang="ts">
-	import Link from '@/components/Link.svelte';
 	import OutlineRow from '@/components/OutlineRow.svelte';
+	import Link from '@/components/Link.svelte';
 </script>
 
-<section class="flex flex-col gap-4 pt-8">
+<section id="hero" class="flex flex-col gap-4 pt-8">
 	<OutlineRow className="pt-16 pb-8 gap-6 flex flex-col">
-		<OutlineRow>
-			<h1 class="px-6 text-7xl font-medium">Calendario anual</h1>
+		<OutlineRow className="px-6">
+			<h1 class="text-[5.5rem] leading-none text-neutral-900 dark:text-neutral-50">
+				Calendario <span
+					class="font-medium text-blue-800 dark:text-blue-500 [&>span>span]:font-normal"
+				>
+					anual
+				</span>
+				<br /> personalizable
+			</h1>
 		</OutlineRow>
 
-		<OutlineRow>
-			<p class="px-6 text-xl">Calendario anual personalizable de una sola página para este año.</p>
+		<OutlineRow className="px-6">
+			<p class="max-w-5xl text-xl">
+				Calendarios personalizados anuales, mensuales, laborables, festivos, santuario... Ademas
+				horaraios, listas, meal planners y mucho más.
+			</p>
 		</OutlineRow>
 
-		<OutlineRow className="px-6 py-2.5">
+		<OutlineRow className="px-6 py-2">
 			<Link href="#crear">Crear calendario</Link>
 		</OutlineRow>
 	</OutlineRow>

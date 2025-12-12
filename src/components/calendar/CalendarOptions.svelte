@@ -8,6 +8,7 @@
 	import Pages from '@/lib/icons/Pages.svelte';
 	import ImageUploader from '@/components/ImageUploader.svelte';
 	import Button from '../Button.svelte';
+	import OutlineRow from '../OutlineRow.svelte';
 
 	const allYears = Array.from({ length: 10000 }, (_, i) => i);
 
@@ -94,25 +95,44 @@
 </script>
 
 <aside
-	class="flex flex-col gap-4 overflow-y-auto border border-neutral-300 bg-brown-50 p-6 scrollbar-none dark:border-neutral-700 dark:bg-neutral-900"
+	class="overflow-y-auto rounded-2xl border border-neutral-300 bg-brown-50 p-1.5 scrollbar-none squircle dark:border-neutral-700 dark:bg-neutral-900"
 >
-	<form class="contents" on:submit|preventDefault={printCalendar}>
+	<form
+		class="flex flex-1 flex-col gap-4 rounded-xl border border-neutral-300 py-4 squircle dark:border-neutral-700"
+		on:submit|preventDefault={printCalendar}
+	>
 		<label class="flex flex-col gap-1">
-			<p class="text-sm font-medium">Año</p>
+			<p class="px-8 text-sm font-medium">Año</p>
 
-			<input
-				class="w-full bg-brown-200 px-3 py-2 text-lg outline-none dark:bg-brown-900"
-				type="number"
-				list="years"
-				maxlength="4"
-				bind:value={$calendarOptions.year}
-			/>
+			<OutlineRow className="px-4 grid grid-cols-[1fr_auto_auto] gap-2">
+				<input
+					class="rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-neutral-700"
+					type="number"
+					list="years"
+					maxlength="4"
+					bind:value={$calendarOptions.year}
+				/>
 
-			<datalist id="years">
-				{#each allYears as year}
-					<option value={year}>{year}</option>
-				{/each}
-			</datalist>
+				<Button
+					className="rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-brown-900"
+					type="button"
+				>
+					- 1
+				</Button>
+
+				<Button
+					className="rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-brown-900"
+					type="button"
+				>
+					+ 1
+				</Button>
+
+				<datalist id="years">
+					{#each allYears as year}
+						<option value={year}>{year}</option>
+					{/each}
+				</datalist>
+			</OutlineRow>
 		</label>
 
 		<div class="grid grid-cols-2 gap-4">

@@ -22,23 +22,21 @@
 
 		return words.every((word) => cleanText.includes(word));
 	});
-
-	$: console.log(filteredTools);
 </script>
 
-<section id="tools" class="py-10">
+<section id="tools" class="overflow-clip py-8">
 	<OutlineRow className="bg-transparent">
 		<div class="relative">
 			<div
-				class="pointer-events-none absolute -inset-px z-20 grid grid-cols-2 gap-x-10 overflow-clip lg:grid-cols-3 xl:grid-cols-4"
+				class="pointer-events-none absolute -inset-px z-20 grid grid-cols-2 gap-x-8 lg:grid-cols-3 xl:grid-cols-4"
 				aria-hidden="true"
 			>
 				{#each tools as _}
-					<div class="h-dvh border-x border-neutral-300 dark:border-neutral-700"></div>
+					<div class="-mt-[50%] h-dvh border-x border-neutral-300 dark:border-neutral-700"></div>
 				{/each}
 			</div>
 			<ul
-				class="grid grid-cols-2 gap-10 overflow-clip lg:grid-cols-3 xl:grid-cols-4 dark:border-neutral-700 dark:bg-neutral-900"
+				class="grid grid-cols-2 gap-8 overflow-clip lg:grid-cols-3 xl:grid-cols-4 dark:border-neutral-700 dark:bg-neutral-900"
 			>
 				{#each filteredTools as tool (tool.name)}
 					<li
