@@ -28,7 +28,7 @@
 		{/if}
 
 		{#if image}
-			<img src={`/images/${image}`} />
+			<img src={`/images/${image}`} alt={name} />
 		{/if}
 
 		<figure>
