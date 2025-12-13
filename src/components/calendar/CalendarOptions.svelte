@@ -3,6 +3,7 @@
 	import { DocOrientation, DocSize } from '@/lib/enums';
 	import { createAnual, createAnualMultipage } from '@/lib/pdf/calendar';
 	import { bloburi, calendarOptions, availableHolidays } from '@/lib/stores';
+	import { debounce } from '@/lib/utils';
 
 	import loadImage from 'blueimp-load-image';
 	import Page from '@/lib/icons/Page.svelte';
@@ -79,7 +80,7 @@
 	}
 
 	onMount(() => printCalendar());
-	$: if ($calendarOptions) printCalendar();
+	$: if ($calendarOptions) debounce(() => printCalendar(), 500)();
 
 	function removeImage(monthIndex: number) {
 		$calendarOptions.images[monthIndex] = null;
@@ -102,7 +103,7 @@
 
 	function decYear() {
 		const yearNum = Number($calendarOptions.year);
-		const yearDec = yearNum + 1;
+		const yearDec = yearNum - 1;
 		$calendarOptions.year = yearDec.toString();
 	}
 </script>
@@ -121,9 +122,8 @@
 				<Button className="grow" type="button" onclick={decYear}>-</Button>
 
 				<input
-					class="w-1/2 rounded-full bg-neutral-300 px-4 py-2 text-lg outline-none dark:bg-neutral-700"
-					type="text"
-					inputmode="numeric"
+					class="w-1/2 appearance-none rounded-full bg-neutral-300 px-4 py-2 text-lg dark:bg-neutral-700"
+					type="number"
 					maxlength="4"
 					bind:value={$calendarOptions.year}
 				/>
@@ -136,72 +136,82 @@
 			{/if}
 		</label>
 
-		<div class="grid grid-cols-2 gap-4">
+		<div class="grid grid-cols-2">
 			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Tamaño</p>
+				<p class="px-8 text-sm font-medium">Tamaño</p>
 
-				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg uppercase outline-none dark:bg-brown-900"
-					bind:value={$calendarOptions.size}
-				>
-					{#each Object.values(DocSize) as value}
-						<option {value}>{value}</option>
-					{/each}
-				</select>
+				<OutlineRow className="px-4">
+					<select
+						class="w-full appearance-none rounded-full bg-neutral-300 px-4 py-2 text-lg capitalize dark:bg-neutral-700"
+						bind:value={$calendarOptions.size}
+					>
+						{#each Object.values(DocSize) as value}
+							<option {value}>{value}</option>
+						{/each}
+					</select>
+				</OutlineRow>
 			</label>
 
 			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Orientación</p>
+				<p class="px-8 text-sm font-medium">Orientación</p>
 
-				<select
-					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none dark:bg-brown-900"
-					bind:value={$calendarOptions.orientation}
-				>
-					{#each Object.values(DocOrientation) as value}
-						<option {value}>{value === DocOrientation.LANDSCAPE ? 'Apaisado' : 'Vertical'}</option>
-					{/each}
-				</select>
+				<OutlineRow className="px-4">
+					<select
+						class="w-full appearance-none rounded-full bg-neutral-300 px-4 py-2 text-lg dark:bg-neutral-700"
+						bind:value={$calendarOptions.orientation}
+					>
+						{#each Object.values(DocOrientation) as value}
+							<option {value}>{value === DocOrientation.LANDSCAPE ? 'Apaisado' : 'Vertical'}</option
+							>
+						{/each}
+					</select>
+				</OutlineRow>
 			</label>
 		</div>
 		<div class="flex flex-col gap-1">
-			<p class="text-sm font-medium">Estilo</p>
+			<p class="px-8 text-sm font-medium">Estilo</p>
 
-			<div class="grid grid-cols-3 gap-4">
-				<label
-					class:bg-brown-400={calendarStyle === 'single'}
-					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
-				>
-					<Page class="size-6" />
-					<p class="text-sm font-medium">1 Página</p>
+			<OutlineRow className="px-4">
+				<div class="grid grid-cols-3 overflow-clip rounded-full bg-neutral-300 dark:bg-neutral-700">
+					<label
+						class="{calendarStyle === 'single'
+							? 'bg-blue-800 text-neutral-50 dark:bg-blue-600'
+							: 'bg-neutral-300 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-50'} flex cursor-pointer items-center justify-center gap-1 p-3"
+					>
+						<p class="text-sm font-medium">1</p>
+						<Page class="size-4" />
 
-					<input class="hidden" type="radio" bind:group={calendarStyle} value="single" />
-				</label>
+						<input class="hidden" type="radio" bind:group={calendarStyle} value="single" />
+					</label>
 
-				<label
-					class:bg-brown-400={calendarStyle === 'multipage'}
-					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
-				>
-					<Pages class="size-6" />
-					<p class="text-sm font-medium">12 Páginas</p>
+					<label
+						class="{calendarStyle === 'multipage'
+							? 'bg-blue-800 text-neutral-50 dark:bg-blue-600'
+							: 'bg-neutral-300 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-50'} flex cursor-pointer items-center justify-center gap-1 p-3"
+					>
+						<p class="text-xs font-medium">12</p>
+						<Pages class="size-4" />
 
-					<input class="hidden" type="radio" bind:group={calendarStyle} value="multipage" />
-				</label>
+						<input class="hidden" type="radio" bind:group={calendarStyle} value="multipage" />
+					</label>
 
-				<label
-					class:bg-brown-400={calendarStyle === 'cover'}
-					class="flex aspect-3/4 cursor-pointer flex-col items-center justify-center gap-1 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
-				>
-					<Pages class="size-6" />
-					<p class="text-sm font-medium">13 Páginas</p>
+					<label
+						class="{calendarStyle === 'cover'
+							? 'bg-blue-800 text-neutral-50 dark:bg-blue-600'
+							: 'bg-neutral-300 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-50'} flex cursor-pointer items-center justify-center gap-1 p-3"
+					>
+						<p class="text-xs font-medium">13</p>
+						<Pages class="size-4" />
 
-					<input class="hidden" type="radio" bind:group={calendarStyle} value="cover" />
-				</label>
-			</div>
+						<input class="hidden" type="radio" bind:group={calendarStyle} value="cover" />
+					</label>
+				</div>
+			</OutlineRow>
 		</div>
 
 		{#if $calendarOptions.holidays && $calendarOptions.multipage}
 			<label class="flex flex-col gap-1">
-				<p class="text-sm font-medium">Etiquetar festivos</p>
+				<p class="text-xs font-medium">Etiquetar festivos</p>
 
 				<select
 					class="w-full appearance-none bg-brown-200 px-3 py-2 text-lg outline-none dark:bg-brown-900"
@@ -229,6 +239,8 @@
 			</details>
 		{/if}
 
-		<Button className="mt-4" type="button" onclick={downloadPDF}>Descargar PDF</Button>
+		<OutlineRow className="px-4 mt-4">
+			<Button className="w-full" type="button" onclick={downloadPDF}>Descargar PDF</Button>
+		</OutlineRow>
 	</form>
 </aside>

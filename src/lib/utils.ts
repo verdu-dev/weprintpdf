@@ -75,3 +75,18 @@ export function debugBox(doc: jsPDF, x: number, y: number, width: number, height
   doc.setLineWidth(fontStyle.outlineWidth);
   doc.rect(x, y, width, height);
 };
+
+export const debounce = <T extends unknown[]>(
+  callback: (...args: T) => void,
+  delay: number,
+) => {
+  let timeoutTimer: ReturnType<typeof setTimeout>;
+
+  return (...args: T) => {
+    clearTimeout(timeoutTimer);
+
+    timeoutTimer = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  };
+};
