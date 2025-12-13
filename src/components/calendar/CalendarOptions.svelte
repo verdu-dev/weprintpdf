@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 	import { DocOrientation, DocSize, MONTH_NAMES } from '@/lib/enums';
 	import { createAnual, createMonthly } from '@/lib/pdf/calendar';
 	import { bloburi, calendarOptions, availableHolidays } from '@/lib/stores';
@@ -12,11 +13,10 @@
 	import Button from '@/components/Button.svelte';
 	import OutlineRow from '@/components/OutlineRow.svelte';
 
-	const pathname = getContext('pathname');
 	let printCalendar: () => void;
 	let withImages = true;
 
-	$: if (pathname() === '/calendario-anual') {
+	$: if ($page.url.pathname === '/calendario-anual') {
 		printCalendar = createAnual;
 		$calendarOptions.monthly = false;
 	} else {
