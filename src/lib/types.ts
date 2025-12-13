@@ -1,6 +1,7 @@
 import type { DocOrientation, DocSize } from "@/lib/enums";
 
 export interface Tool {
+  image?: string;
   createdAt: string;
   icon: string;
   name: string;
@@ -20,9 +21,10 @@ export interface CalendarOptions {
   year: string,
   size: DocSize
   orientation: DocOrientation,
-  sundays: boolean,
-  multipage: boolean,
+  boxDays: boolean,
+  monthly: boolean,
   cover: boolean,
+  oneMonth?: number,
   holidays: boolean,
   labelHolidays: boolean,
   images: (MonthImage | null)[];

@@ -23,40 +23,46 @@
 	];
 </script>
 
-{#if !$calendarOptions.images[monthIndex]}
-	<label class="flex flex-col gap-1">
-		<p class="text-sm font-medium">{monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}</p>
+<div class="flex flex-col gap-1">
+	<p class="text-sm font-medium">
+		{monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}
+	</p>
 
-		<input
-			class="hidden"
-			type="file"
-			accept="image/png, image/jpeg, image/webp, image/avif"
-			bind:files={images[monthIndex]}
-		/>
-
-		<div
-			class="flex aspect-3/4 flex-col items-center justify-center gap-4 border border-neutral-300 bg-brown-200 p-2 dark:border-neutral-700 dark:bg-brown-900"
-		>
-			<Images class="size-5" />
-			<p class="text-center text-xs leading-none font-medium">Añadir imagen</p>
-		</div>
-	</label>
-{:else}
-	<div class="flex flex-col gap-1">
-		<p class="text-sm font-medium">{monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}</p>
-
-		<div class="relative aspect-3/4 border border-neutral-300 dark:border-neutral-700">
-			<img
-				class="aspect-3/4 size-full object-cover"
-				src={$calendarOptions.images[monthIndex]?.img.src}
-				alt="Imagen {monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}"
+	<div class="relative aspect-3/4">
+		<label class="cursor-pointer">
+			<input
+				class="hidden"
+				type="file"
+				accept="image/png, image/jpeg, image/webp, image/avif"
+				bind:files={images[monthIndex]}
 			/>
-			<button
-				class="absolute bottom-0 flex w-full cursor-pointer justify-center bg-brown-50/70 p-1 dark:bg-brown-950/70"
-				on:click={() => removeImage(monthIndex)}
+
+			<div
+				class="flex size-full flex-col items-center justify-center gap-2 overflow-clip rounded-2xl bg-neutral-300 squircle dark:bg-neutral-700"
 			>
-				<Trash class="size-6" />
-			</button>
-		</div>
+				{#if !$calendarOptions.images[monthIndex]}
+					<Images class="size-5" />
+					<p class="px-2 text-center text-xs leading-none font-medium">Añadir</p>
+				{:else}
+					<img
+						class=" size-full object-cover"
+						src={$calendarOptions.images[monthIndex]?.img.src}
+						alt="Imagen {monthIndex === 12 ? 'Portada' : monthEs[monthIndex]}"
+					/>
+				{/if}
+			</div>
+		</label>
+
+		{#if $calendarOptions.images[monthIndex]}
+			<div class="absolute bottom-0 w-full p-1.5">
+				<button
+					class="flex w-full cursor-pointer items-center justify-center gap-1 rounded-xl bg-neutral-300 p-1.5 squircle dark:bg-neutral-700"
+					on:click={() => removeImage(monthIndex)}
+				>
+					<Trash class="size-4" />
+					<p class="text-xs font-medium">Borrar</p>
+				</button>
+			</div>
+		{/if}
 	</div>
-{/if}
+</div>

@@ -8,8 +8,8 @@ export const fontSize = {
     title: 28,
     base: 12,
     weekDays: 8,
-    baseMultipage: 20,
-    weekDaysMultipage: 12,
+    basemonthly: 20,
+    weekDaysmonthly: 12,
     holiday: 7
   },
   a3: {
@@ -17,8 +17,8 @@ export const fontSize = {
     title: 40,
     base: 16,
     weekDays: 12,
-    baseMultipage: 32,
-    weekDaysMultipage: 16,
+    basemonthly: 32,
+    weekDaysmonthly: 16,
     holiday: 9
   }
 }

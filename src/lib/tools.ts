@@ -2,6 +2,7 @@ import type { Tool } from '@/lib/types';
 
 export const tools: Tool[] = [
   {
+    image: "anual.webp",
     createdAt: '2025-11-18',
     icon: 'An',
     name: 'Calendario anual',
@@ -10,6 +11,7 @@ export const tools: Tool[] = [
     slug: 'calendario-anual'
   },
   {
+    image: "monthly.webp",
     createdAt: '2025-11-21',
     icon: 'Me',
     name: 'Calendario mensual',

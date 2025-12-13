@@ -2,7 +2,7 @@
 	import type { Tool } from '@/lib/types';
 
 	export let tool: Tool;
-	const { createdAt, icon, name, description, slug } = tool;
+	const { image, createdAt, icon, name, description, slug } = tool;
 
 	const isNew = (() => {
 		const createdDate = new Date(createdAt);
@@ -27,8 +27,13 @@
 			</div>
 		{/if}
 
+		{#if image}
+			<img src={`/images/${image}`} />
+		{/if}
+
 		<figure>
-			<span class="font-brand text-5xl text-neutral-900 dark:text-neutral-50">{icon}</span>
+			<span class="font-brand text-5xl text-neutral-900 dark:text-neutral-50">{icon}</span
+			>
 		</figure>
 
 		<h2 class="text-xl font-medium">{name}</h2>

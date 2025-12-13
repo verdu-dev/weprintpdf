@@ -51,7 +51,7 @@ function setBase() {
   pageSize.width = doc.internal.pageSize.getWidth();
   pageSize.height = doc.internal.pageSize.getHeight();
 
-  dayRows = options.multipage ? 7 : 8;
+  dayRows = options.monthly ? 7 : 8;
 }
 
 function setFontSize() {
@@ -59,9 +59,9 @@ function setFontSize() {
   fontSize.title = fontConsts[options.size].title;
   fontSize.holiday = fontConsts[options.size].holiday;
 
-  if (options.multipage) {
-    fontSize.weekDays = fontConsts[options.size].weekDaysMultipage;
-    fontSize.base = fontConsts[options.size].baseMultipage;
+  if (options.monthly) {
+    fontSize.weekDays = fontConsts[options.size].weekDaysmonthly;
+    fontSize.base = fontConsts[options.size].basemonthly;
   } else {
     fontSize.weekDays = fontConsts[options.size].weekDays;
     fontSize.base = fontConsts[options.size].base;
@@ -105,29 +105,33 @@ async function setHolidays(year: number, months: CalendarMonth[]) {
 
 function setCoverPage() {
   const coverImage = options.images[12];
-  if (!coverImage) return;
 
-  const coverBox = {
-    x: 0,
-    y: 0,
-    width: pageSize.width,
-    height: pageSize.height
+  doc.setDrawColor("black");
+  doc.rect(0, 0, pageSize.width, pageSize.height, "F");
+
+  if (coverImage) {
+    const coverBox = {
+      x: 0,
+      y: 0,
+      width: pageSize.width,
+      height: pageSize.height
+    }
+
+    const scaleX = coverBox.width / coverImage.img.width;
+    const scaleY = coverBox.height / coverImage.img.height;
+    const scale = Math.max(scaleX, scaleY);
+    const scaledW = coverImage.img.width * scale;
+    const scaledH = coverImage.img.height * scale;
+    const offsetX = (coverBox.width - scaledW) / 2;
+    const offsetY = (coverBox.height - scaledH) / 2;
+
+    doc.saveGraphicsState();
+    doc.rect(coverBox.x, coverBox.y, coverBox.width, coverBox.height, null);
+    doc.clip();
+    doc.discardPath();
+    doc.addImage(coverImage.img, coverImage.format, offsetX, offsetY, scaledW, scaledH);
+    doc.restoreGraphicsState();
   }
-
-  const scaleX = coverBox.width / coverImage.img.width;
-  const scaleY = coverBox.height / coverImage.img.height;
-  const scale = Math.max(scaleX, scaleY);
-  const scaledW = coverImage.img.width * scale;
-  const scaledH = coverImage.img.height * scale;
-  const offsetX = (coverBox.width - scaledW) / 2;
-  const offsetY = (coverBox.height - scaledH) / 2;
-
-  doc.saveGraphicsState();
-  doc.rect(coverBox.x, coverBox.y, coverBox.width, coverBox.height, null);
-  doc.clip();
-  doc.discardPath();
-  doc.addImage(coverImage.img, coverImage.format, offsetX, offsetY, scaledW, scaledH);
-  doc.restoreGraphicsState();
 
   doc.setFontSize(fontSize.cover);
   doc.setFont(fontStyle.fontFamily, "bold");
@@ -189,7 +193,7 @@ function setTitle(title: string) {
     .setTextColor(fontStyle.baseColor)
     .setFont(fontStyle.fontFamily, "bold");
 
-  if (options.multipage) {
+  if (options.monthly) {
     doc.text(title, titleBoxCenterX, titleBox.y + titleBox.height, {
       baseline: "bottom",
       align: "center"
@@ -229,7 +233,7 @@ function setMonthsGrid() {
 }
 
 function setMonthBox() {
-  if (options.multipage) {
+  if (options.monthly) {
     monthBox.width = calendarBox.width;
     monthBox.height = calendarBox.height;
   } else {
@@ -266,7 +270,7 @@ function setMonths(splittedMonths: CalendarMonth[][]) {
 function setWeekDays(monthX: number, monthY: number) {
   Object.values(WEEKDAYS_NAMES).forEach((weekday, weekdayInd) => {
     const weekdayX = monthX + dayBox.width * weekdayInd;
-    const weekdayY = options.multipage ? monthY : monthY + dayBox.height;
+    const weekdayY = options.monthly ? monthY : monthY + dayBox.height;
     const weekdayCenterX = weekdayX + dayBox.width / 2;
     const weekdayCenterY = weekdayY + dayBox.height / 2;
 
@@ -276,7 +280,7 @@ function setWeekDays(monthX: number, monthY: number) {
       .setTextColor(fontStyle.weekDaysColor)
       .setFont(fontStyle.fontFamily, "normal");
 
-    if (options.multipage) {
+    if (options.monthly) {
       doc.text(weekday.slice(0, 2), weekdayCenterX, weekdayY + dayBox.height - spacing[options.size].margin, {
         baseline: "bottom",
         align: "center"
@@ -295,7 +299,7 @@ function setWeeks(month: CalendarMonth, monthX: number, monthY: number) {
     const weekX = monthX;
     let weekY = monthY + ((weekInd + 2) * dayBox.height);
 
-    if (options.multipage) {
+    if (options.monthly) {
       weekY = monthY + ((weekInd + 1) * dayBox.height);
     }
 
@@ -306,7 +310,7 @@ function setWeeks(month: CalendarMonth, monthX: number, monthY: number) {
 }
 
 function setDayBox() {
-  if (options.multipage) {
+  if (options.monthly) {
     dayBox.width = calendarBox.width / dayCols;
     dayBox.height = calendarBox.height / dayRows;
   } else {
@@ -324,13 +328,16 @@ function setDays(week: CalendarWeek, weekX: number, weekY: number) {
 
 
     if (day && day.day) {
-      doc.setDrawColor(fontStyle.outlineColor);
-      doc.setLineWidth(fontStyle.outlineWidth);
-      doc.rect(dayX, dayY, dayBox.width, dayBox.height, "D");
+
+      if (options.boxDays) {
+        doc.setDrawColor(fontStyle.outlineColor);
+        doc.setLineWidth(fontStyle.outlineWidth);
+        doc.rect(dayX, dayY, dayBox.width, dayBox.height, "D");
+      }
 
       const isSunday = Object.values(WEEKDAYS_NAMES)[day.weekday] === WEEKDAYS_NAMES.SUNDAY;
 
-      if (options.sundays && isSunday || options.holidays && day.holiday) {
+      if (isSunday || day.holiday) {
         doc.setFontSize(fontSize.base)
           .setTextColor(fontStyle.holidayColor)
           .setFont(fontStyle.fontFamily, "bold");
@@ -340,7 +347,7 @@ function setDays(week: CalendarWeek, weekX: number, weekY: number) {
           .setFont(fontStyle.fontFamily, "normal");
       }
 
-      if (options.multipage && options.labelHolidays) {
+      if (options.monthly && options.labelHolidays) {
         doc.text(`${day.day}`, dayX + dayBox.width - spacing[options.size].innerMargin, dayY + spacing[options.size].innerMargin, {
           baseline: "top",
           align: "right"
@@ -396,7 +403,7 @@ export async function createAnual() {
   setOutput();
 }
 
-export async function createAnualMultipage() {
+export async function createMonthly() {
   setBase();
   const year = Number(options.year);
 
@@ -407,10 +414,10 @@ export async function createAnualMultipage() {
 
   if (options.cover) setCoverPage();
 
-  calendar.months.forEach((month, monthInd) => {
-    if (monthInd > 0) doc.addPage();
+  if (options.oneMonth !== undefined) {
+    const month = calendar.months[options.oneMonth];
 
-    setMonthImage(monthInd);
+    setMonthImage(options.oneMonth);
     setTitle(month.name);
     setCalendarBox();
     setMonthBox();
@@ -418,8 +425,20 @@ export async function createAnualMultipage() {
 
     setWeekDays(spacing[options.size].margin, calendarBox.y);
     setWeeks(month, spacing[options.size].margin, calendarBox.y);
-  })
+  } else {
+    calendar.months.forEach((month, monthInd) => {
+      if (monthInd > 0) doc.addPage();
 
+      setMonthImage(monthInd);
+      setTitle(month.name);
+      setCalendarBox();
+      setMonthBox();
+      setDayBox();
+
+      setWeekDays(spacing[options.size].margin, calendarBox.y);
+      setWeeks(month, spacing[options.size].margin, calendarBox.y);
+    })
+  }
 
   setOutput();
 }
