@@ -16,7 +16,8 @@
 </script>
 
 <article
-	class="rounded-2xl border border-neutral-300 bg-brown-50 p-1.5 text-neutral-600 squircle dark:border-neutral-700 dark:bg-neutral-900"
+	id="preview"
+	class="h-[calc(100%-70px)] w-full shrink-0 snap-start rounded-2xl border border-neutral-300 bg-brown-50 p-1.5 text-neutral-600 squircle md:h-full dark:border-neutral-700 dark:bg-neutral-900"
 >
 	<div
 		class="relative flex size-full items-center justify-center overflow-clip rounded-xl border border-neutral-300 bg-pdf squircle dark:border-neutral-700"

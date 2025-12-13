@@ -13,7 +13,8 @@
 		document.documentElement.classList.toggle(
 			'dark',
 			localStorage.theme === 'dark' ||
-				(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				(!('theme' in localStorage) &&
+					window.matchMedia('(prefers-color-scheme: dark)').matches)
 		);
 	});
 </script>
@@ -24,9 +25,11 @@
 
 <Header />
 
-<div class="mx-auto grid w-full max-w-[1600px] flex-1 grid-cols-[45px_1fr_45px]">
+<div
+	class="mx-auto grid w-full max-w-[1600px] flex-1 grid-cols-1 md:grid-cols-[45px_1fr_45px]"
+>
 	<aside
-		class="relative z-20 h-full border-x border-neutral-300 bg-brown-50 bg-circles dark:border-neutral-700 dark:bg-neutral-900"
+		class="relative z-20 hidden h-full border-x border-neutral-300 bg-brown-50 bg-circles md:block dark:border-neutral-700 dark:bg-neutral-900"
 	></aside>
 
 	<div class="flex flex-col bg-diagonals pb-24">
@@ -34,7 +37,7 @@
 	</div>
 
 	<aside
-		class="relative z-20 h-full border-x border-neutral-300 bg-brown-50 bg-circles dark:border-neutral-700 dark:bg-neutral-900"
+		class="relative z-20 hidden h-full border-x border-neutral-300 bg-brown-50 bg-circles md:block dark:border-neutral-700 dark:bg-neutral-900"
 	></aside>
 </div>
 

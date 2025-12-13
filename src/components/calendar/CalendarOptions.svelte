@@ -14,7 +14,7 @@
 	import OutlineRow from '@/components/OutlineRow.svelte';
 
 	let printCalendar: () => void;
-	let withImages = true;
+	let withImages = false;
 
 	$: if ($page.url.pathname === '/calendario-anual') {
 		printCalendar = createAnual;
@@ -113,7 +113,8 @@
 </script>
 
 <aside
-	class="rounded-2xl border border-neutral-300 bg-brown-50 p-1.5 squircle dark:border-neutral-700 dark:bg-neutral-900"
+	id="options"
+	class="h-[calc(100%-70px)] w-full shrink-0 snap-center rounded-2xl border border-neutral-300 bg-brown-50 p-1.5 squircle md:h-full dark:border-neutral-700 dark:bg-neutral-900"
 >
 	<form
 		class="flex h-full flex-col gap-4 overflow-y-auto rounded-xl border border-neutral-300 py-4 scrollbar-none squircle dark:border-neutral-700"
