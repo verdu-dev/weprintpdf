@@ -22,7 +22,10 @@
 		`}
 	>
 		{#if isNew}
-			<div class="absolute top-3 right-3 rounded-full bg-blue-800 p-1.5 dark:bg-blue-500">
+			<div
+				class="absolute top-3 right-3 rounded-full bg-blue-800 p-1.5 dark:bg-blue-500"
+				title="Nuevo"
+			>
 				<span class="sr-only">NUEVO</span>
 			</div>
 		{/if}
